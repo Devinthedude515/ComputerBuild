@@ -11,6 +11,7 @@ public class MainFrame extends JFrame {
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(new Color(128, 128, 255));
     }
+
     
     //initialize the frame
     public void initialaize() {
