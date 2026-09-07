@@ -1,4 +1,4 @@
-package service;
+package model;
 /*
     This class will be used to create a build request for a computer build.
     The information gathered will be the name, nameOfBuild, budget, target year for gaming, and gaming genre.

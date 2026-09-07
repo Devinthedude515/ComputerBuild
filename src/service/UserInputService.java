@@ -5,6 +5,7 @@ package service;
 
 //import the entire java.util package to use the Scanner class for user input
 import java.util.*;
+import model.BuildRequest;
 
 public class UserInputService {
 

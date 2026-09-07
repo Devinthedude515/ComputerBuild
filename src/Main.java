@@ -1,6 +1,6 @@
 /* Main class for the computer build application */
 
-import service.BuildRequest;
+import model.BuildRequest;
 
 public class Main {
     public static void main(String[] args) {
