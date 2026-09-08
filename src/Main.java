@@ -11,8 +11,10 @@ public class Main {
         // Display the build request information
         System.out.println("Name: " + buildRequest.getName());
         System.out.println("Build Name: " + buildRequest.getNameOfBuild());
+        System.out.println("Screen Resolution: " + buildRequest.getScreenResolution());
         System.out.println("Budget: $" + buildRequest.getBudget());
         System.out.println("Target Year: " + buildRequest.getTargetYear());
         System.out.println("Gaming Genre: " + buildRequest.getGamingGenre());
+        System.out.println("Frame Rate: " + buildRequest.getFrameRate() + " FPS");
     }
 }
