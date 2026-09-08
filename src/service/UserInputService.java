@@ -7,6 +7,9 @@ package service;
 //import the BuildRequest class from the model package to create a new BuildRequest object with the collected user input
 import java.util.*;
 import model.BuildRequest;
+import model.ScreenResolution;
+import model.GamingGenre;
+import model.FrameRate;
 
 public class UserInputService {
 
@@ -36,16 +39,22 @@ public class UserInputService {
             nameOfBuild = scanner.nextLine();
         }
 
-        //collect the screen resolution and validate that it is not null and less than 15 characters
-        System.out.print("Enter your screen resolution: ");
+        //collect the screen resolution and display the available options to the user using the ScreenResolution enum
+        System.out.println("Choose available screen resolutions: ");
+        for (ScreenResolution resolution : ScreenResolution.values()) {
+            System.out.println(resolution);
+        }
+        System.out.print("Enter your preferred screen resolution: ");
         String screenResolution = scanner.nextLine();
 
-        while (screenResolution == null || screenResolution.length() > 15) {
-            System.out.println("Invalid input. Please enter a screen resolution that is not null and less than 15 characters.");
-            System.out.print("Enter your screen resolution: ");
+        //validate that the input is one of the available options in the ScreenResolution enum
+        while (screenResolution == null || screenResolution.isEmpty() ||!Arrays.asList(ScreenResolution.values()).contains(ScreenResolution.valueOf(screenResolution))) {
+            System.out.println("Invalid input. Please enter a valid screen resolution from the available options.");
+            System.out.print("Enter your preferred screen resolution: ");
             screenResolution = scanner.nextLine();
         }
-        
+
+
         //collect the budget of the build and validate that it is more than 500 dollars
         System.out.print("Enter your budget: ");
         double budget = scanner.nextDouble();

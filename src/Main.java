@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
 
         // Create a new build request
-        BuildRequest buildRequest = new BuildRequest("John Doe", "Gaming Rig", 1000.0, 2023, "First-Person Shooter");
+        BuildRequest buildRequest = new BuildRequest("John Doe", "Gaming Rig", "HD_1080p", 1000.0, 2023, "First-Person Shooter", 60);
 
         // Display the build request information
         System.out.println("Name: " + buildRequest.getName());
