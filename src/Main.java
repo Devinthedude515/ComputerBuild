@@ -1,12 +1,20 @@
 /* Main class for the computer build application */
 
 import model.BuildRequest;
+import service.UserInputService;
+import ui.MainFrame;
+
 
 public class Main {
     public static void main(String[] args) {
 
+        // Create and display the main frame
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.initialize();
+
         // Create a new build request
-        BuildRequest buildRequest = new BuildRequest("John Doe", "Gaming Rig", "HD_1080p", 1000.0, 2023, "First-Person Shooter", 60);
+        UserInputService userInputService = new UserInputService();
+        BuildRequest buildRequest = userInputService.collectUserInput();
 
         // Display the build request information
         System.out.println("Name: " + buildRequest.getName());
