@@ -46,17 +46,34 @@ public class GUIDemo {
         frame.setVisible(true);
     }
     
+    //button listener setup
     public void setUpButtonListeners() {
 
+        //create action Listener 
         ActionListener buttonListener = new ActionListener() {
 
+            //create action performed
             @Override 
             public void actionPerformed(ActionEvent ae) {
                 System.out.println("click!");
             }
         };
 
+        //create second action listener
+        ActionListener buttonListener2 =  new ActionListener() {
+            
+            //create action performed
+            @Override 
+            public void actionPerformed(ActionEvent ae) {
+                System.out.println("boop");
+            }
+            
+        };
+
         //attach our button to the listener
         button1.addActionListener(buttonListener);
+        button2.addActionListener(buttonListener2);
     }
+
+    
 }
