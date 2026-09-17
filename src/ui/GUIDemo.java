@@ -61,10 +61,16 @@ public class GUIDemo {
 
                 //validate both button1 and button2 using the Object o variable
                 if(o == button1){
-                    System.out.println("beep");
+                    //collect String data to copy to a label
+                    String s = input.getText();
+                    label.setText(s);
+                    //set input text field to be an empty string
+                    input.setText("");
                 }
                 else if(o == button2){
-                    System.out.println("boop");
+                    //collect String data and parse into a double value
+                    String val = input.getText();
+                    double n = Double.parseDouble(val);
                 }
                 
             }
