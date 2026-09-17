@@ -55,24 +55,24 @@ public class GUIDemo {
             //create action performed
             @Override 
             public void actionPerformed(ActionEvent ae) {
-                System.out.println("click!");
-            }
-        };
+                //create object to validate button presses
+                //getSource() function determines what action takes place
+                Object o = ae.getSource();
 
-        //create second action listener
-        ActionListener buttonListener2 =  new ActionListener() {
-            
-            //create action performed
-            @Override 
-            public void actionPerformed(ActionEvent ae) {
-                System.out.println("boop");
+                //validate both button1 and button2 using the Object o variable
+                if(o == button1){
+                    System.out.println("beep");
+                }
+                else if(o == button2){
+                    System.out.println("boop");
+                }
+                
             }
-            
         };
 
         //attach our button to the listener
         button1.addActionListener(buttonListener);
-        button2.addActionListener(buttonListener2);
+        button2.addActionListener(buttonListener);
     }
 
     
