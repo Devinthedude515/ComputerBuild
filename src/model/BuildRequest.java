@@ -6,12 +6,15 @@ package model;
 public class BuildRequest {
     
     //create private fields to collect data
-    private String name, nameOfBuild, gamingGenre, screenResolution;
+    private String name, nameOfBuild;
+    private GamingGenre gamingGenre;
+    private ScreenResolution screenResolution;
+    private FrameRate frameRate;
     private double budget;
-    private int targetYear, frameRate;
+    private int targetYear;
 
     //create a constructor to initialize the fields
-    public BuildRequest(String name, String nameOfBuild, String screenResolution, double budget, int targetYear, String gamingGenre, int frameRate) {
+    public BuildRequest(String name, String nameOfBuild, ScreenResolution screenResolution, double budget, int targetYear, GamingGenre gamingGenre, FrameRate frameRate) {
         this.name = name;
         this.nameOfBuild = nameOfBuild;
         this.screenResolution = screenResolution;
@@ -38,15 +41,15 @@ public class BuildRequest {
         return targetYear;
     }
 
-    public String getGamingGenre() {
+    public GamingGenre getGamingGenre() {
         return gamingGenre;
     }
 
-    public String getScreenResolution() {
+    public ScreenResolution getScreenResolution() {
         return screenResolution;
     }
 
-    public int getFrameRate() {
+    public FrameRate getFrameRate() {
         return frameRate;
     }
 }

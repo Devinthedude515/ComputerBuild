@@ -43,31 +43,130 @@ public class UserInputService {
         Multi function method to print available options to user, collects info, then validates the input.
         */
         //prints the available options to the user
-        /************Needs Validation******************/
+        int count = 1;
+
         System.out.println("Choose available screen resolutions: ");
         for (ScreenResolution resolution : ScreenResolution.values()) {
-            System.out.println(resolution);
+            System.out.println(count + ". " + resolution);
+            //increment count, it labels each option for switch statements
+            count++;
         } 
-        //collect user input
-        String screenResolution = scanner.nextLine();
         
+        //collect user input
+        ScreenResolution screenResolution = ScreenResolution.HD_1080p;
+        int screenRes = scanner.nextInt();
+
+        //vallidate the screen res number
+        while (screenRes < 1 || screenRes > 3) {
+            //print error statement
+            System.out.println("Error. Please choose option 1-3");
+            screenRes = scanner.nextInt();
+        }
+
+        //confirm the screen resolution choice
+        switch(screenRes){
+
+            //user chooses 1080p
+            case 1:
+                screenResolution = ScreenResolution.HD_1080p;
+                break;
+            //user chooses 1440p
+            case 2:
+                screenResolution = ScreenResolution.QHD_1440p;
+                break;
+            //user chooses 2160p
+            case 3:
+                screenResolution = ScreenResolution.UHD_2160p;
+                break;
+        }
+
+        //reset count to print numbered options
+        count = 1;
+
         //collect the gaming genre and validate that it is one of the available options
-        /************Needs Validation******************/
         System.out.println("Choose available gaming genres: ");
         for (GamingGenre genre : GamingGenre.values()) {
-            System.out.println(genre);
+            System.out.println(count + ". " + genre);
+            count++;
         }
-        //user input for gaming genre
-        String gamingGenre = scanner.nextLine();
+        
+        //collect user input
+        GamingGenre gamingGenre = GamingGenre.FPS;
+        int genreChoice = scanner.nextInt();
 
-        //collect the frame rate and validate that it is one of the available options
-        /************Needs Validation******************/
+        //vallidate the screen res number
+        while (genreChoice < 1 || genreChoice > 6) {
+            //print error statement
+            System.out.println("Error. Please choose option 1-6");
+            genreChoice = scanner.nextInt();
+        }
+
+        //confirm the genre choice
+        switch(genreChoice){
+
+            //user chooses FPS
+            case 1:
+                gamingGenre = GamingGenre.FPS;
+                break;
+            //user chooses Survival
+            case 2:
+                gamingGenre = GamingGenre.Survival;
+                break;
+            //user chooses RPG
+            case 3:
+                gamingGenre = GamingGenre.RPG;
+                break;
+            //user chooses sports
+            case 4:
+                gamingGenre = GamingGenre.SPORTS;
+                break;
+            //user chooses sports
+            case 5:
+                gamingGenre = GamingGenre.STRATEGY;
+                break;
+            //user chooses sports
+            case 6:
+                gamingGenre = GamingGenre.RACING;
+                break;
+        }
+
+        
+        //reset count to print numbered options
+        count = 1;
+
         System.out.println("Choose available frame rates: ");
         for (FrameRate frameRate : FrameRate.values()) {
             System.out.println(frameRate);
         }
+
         //user input for frame rate
-        int frameRate = scanner.nextInt();
+        FrameRate frameRate = FrameRate.FPS_30;
+        int frameChoice = scanner.nextInt();
+
+        //confirm the genre choice
+        switch(frameChoice){
+
+            //user chooses 30 FPS
+            case 1:
+                frameRate = FrameRate.FPS_30;
+                break;
+            //user chooses 60 FPS
+            case 2:
+                frameRate = FrameRate.FPS_60;
+                break;
+            //user chooses 120 FPS
+            case 3:
+                frameRate = FrameRate.FPS_120;
+                break;
+            //user chooses 144 FPS
+            case 4:
+                frameRate = FrameRate.FPS_144;
+                break;
+            //user chooses 240 FPS
+            case 5:
+                frameRate = FrameRate.FPS_240;
+                break;
+        }
 
         //collect the budget of the build and validate that it is more than 500 dollars
         System.out.print("Enter your budget: ");
