@@ -136,7 +136,8 @@ public class UserInputService {
 
         System.out.println("Choose available frame rates: ");
         for (FrameRate frameRate : FrameRate.values()) {
-            System.out.println(frameRate);
+            System.out.println(count + ". " +frameRate);
+            count++;
         }
 
         //user input for frame rate
