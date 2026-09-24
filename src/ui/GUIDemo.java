@@ -3,6 +3,7 @@ package ui;
 //imports
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
@@ -15,6 +16,7 @@ public class GUIDemo {
     private int height;
     private JButton button1, button2;
     private JTextField input;
+    private JTextArea ta;
     private JLabel label;
 
 
@@ -23,6 +25,7 @@ public class GUIDemo {
         frame = new JFrame();
         label = new JLabel("Hello");
         input = new JTextField(10);
+        ta = new JTextArea("Hello.\n This is a JText area");
         button1 = new JButton("Button 1");
         button2 = new JButton("Button 2");
         width = w;
@@ -33,15 +36,17 @@ public class GUIDemo {
 
         //set the frame up
         Container cp = frame.getContentPane();
-        FlowLayout flow = new FlowLayout();
-        cp.setLayout(flow);
-        
+        //FlowLayout flow = new FlowLayout();
+        BorderLayout brdr =  new BorderLayout();
+        cp.setLayout(brdr);
         frame.setSize(width, height);
         frame.setTitle("GUI Demo");
-        cp.add(input);
-        cp.add(label);
-        cp.add(button1);
-        cp.add(button2);
+        //have to add which region in add statements when using borderlayout
+        cp.add(input, BorderLayout.NORTH);
+        cp.add(label, BorderLayout.SOUTH);
+        cp.add(button1, BorderLayout.WEST);
+        cp.add(button2, BorderLayout.EAST);
+        cp.add(ta, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -64,7 +69,7 @@ public class GUIDemo {
                     //collect String data to copy to a label
                     String s = input.getText();
                     label.setText(s);
-                    //set input text field to be an empty string
+                    //set input text field to be an empty string after setting the label
                     input.setText("");
                 }
                 else if(o == button2){

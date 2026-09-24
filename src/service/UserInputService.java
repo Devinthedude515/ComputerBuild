@@ -52,7 +52,7 @@ public class UserInputService {
             count++;
         } 
         
-        //collect user input
+        //collect user input and set it to default value
         ScreenResolution screenResolution = ScreenResolution.HD_1080p;
         int screenRes = scanner.nextInt();
 
@@ -90,7 +90,7 @@ public class UserInputService {
             count++;
         }
         
-        //collect user input
+        //collect user input set it to default value
         GamingGenre gamingGenre = GamingGenre.FPS;
         int genreChoice = scanner.nextInt();
 
@@ -140,7 +140,7 @@ public class UserInputService {
             count++;
         }
 
-        //user input for frame rate
+        //user input for frame rate set it to default value
         FrameRate frameRate = FrameRate.FPS_30;
         int frameChoice = scanner.nextInt();
 

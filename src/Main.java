@@ -1,15 +1,15 @@
 /* Main class for the computer build application */
-import model.BuildRequest;
-import service.UserInputService;
-
+import ui.GUIDemo;
 
 public class Main {
     public static void main(String[] args) {
-        /*
+        
         GUIDemo gd = new GUIDemo(640, 480);
         gd.setUpGUI();
         gd.setUpButtonListeners();
-         */
+         
+
+        /* 
 
         //use UserInputService to gather user data for processing
         UserInputService request = new UserInputService();
@@ -21,6 +21,8 @@ public class Main {
         System.out.println("Screen Resolution: " + newBuild.getScreenResolution());
         System.out.println("Gaming Genre: " + newBuild.getGamingGenre());
         System.out.println("Desired refresh rate: " + newBuild.getFrameRate());
+
+        */
 
     }
 }
