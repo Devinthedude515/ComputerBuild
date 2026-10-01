@@ -4,13 +4,12 @@ import ui.GUIDemo;
 public class Main {
     public static void main(String[] args) {
         
-        GUIDemo gd = new GUIDemo(640, 480);
+        GUIDemo gd = new GUIDemo(1920, 1080);
         gd.setUpGUI();
         gd.setUpButtonListeners();
          
 
         /* 
-
         //use UserInputService to gather user data for processing
         UserInputService request = new UserInputService();
 
