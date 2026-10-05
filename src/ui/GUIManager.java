@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
-public class GUIDemo {
+public class GUIManager {
 
     //fields that control the size of the GUI, and the components that are displayed on it. The frame is the main window that contains all the other components. The buttons are used to perform actions, and the text field is used to collect user input. The text area is used to display output, and the label is used to display instructions or questions.
     private JFrame frame;
@@ -29,7 +29,7 @@ public class GUIDemo {
 
 
     //create constructor
-    public GUIDemo(int w, int h) {
+    public GUIManager(int w, int h) {
         //sets the Frame
         frame = new JFrame();
 

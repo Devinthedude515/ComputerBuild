@@ -33,8 +33,8 @@ public class UserInputService {
         System.out.print("Enter the name of your build: ");
         String nameOfBuild = scanner.nextLine();
 
-        while (nameOfBuild == null || nameOfBuild.length() > 20) {
-            System.out.println("Invalid input. Please enter a build name that is not null and less than 20 characters.");
+        while (nameOfBuild == null || nameOfBuild.length() > 20 || nameOfBuild.equals("")) {
+            System.out.println("Invalid input. Please enter a build name that is not blank and less than 20 characters.");
             System.out.print("Enter the name of your build: ");
             nameOfBuild = scanner.nextLine();
         }
