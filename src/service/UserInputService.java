@@ -196,4 +196,14 @@ public class UserInputService {
         return new BuildRequest(name, nameOfBuild, screenResolution, budget, targetYear, gamingGenre, frameRate);
     }
     
+
+    public String getUserName(String name) {
+
+        while (name == null || name.length() > 10) {
+            
+            return null;
+        }
+
+        return name;
+    }
 }

@@ -3,10 +3,10 @@ package ui;
 //imports
 import java.awt.Container;
 import java.awt.FlowLayout;
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import service.UserInputService;
 
 public class GUIManager {
 
@@ -40,7 +40,6 @@ public class GUIManager {
         nameInput = new JTextField(10);
 
         //text areas
-        ta = new JTextArea("Hello.\n This is a JText area");
 
         //buttons
         nameButton = new JButton("Submit");
@@ -59,18 +58,20 @@ public class GUIManager {
         //BorderLayout brdr =  new BorderLayout();
         cp.setLayout(flow);
         frame.setSize(width, height);
-        frame.setTitle("GUI Demo");
+        frame.setTitle("PCBuilder Unlimited");
         //have to add which region in add statements when using borderlayout
         cp.add(nameLabel);
         cp.add(nameInput);
         cp.add(nameButton);
-        cp.add(ta);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
     
     //button listener setup
     public void setUpButtonListeners() {
+
+        //call user input service to validate the name
+        UserInputService userInputService = new UserInputService();
 
         //create action Listener 
         ActionListener buttonListener = new ActionListener() {
@@ -86,12 +87,17 @@ public class GUIManager {
                 if(o == nameButton){
                     //collect String data to copy to a label
                     String s = nameInput.getText();
-                    nameLabel.setText(s);
-                    //set input text field to be an empty string after setting the label
+                    String validatedName = userInputService.getUserName(s);
+                    //set input text field to be an empty string after setting the label)
+                        nameLabel.setText("Name: " + validatedName);
+                    } else {
+                        nameLabel.setText("Invalid input. Please enter a name that is not null and less than 10 characters.");
+                    }
+                    
+                    //make the box empty after the user presses the button, so they can enter a new name if they want to
                     nameInput.setText("");
                 }
-            }
-        };
+            };
 
         //attach our button to the listener
         nameButton.addActionListener(buttonListener);
