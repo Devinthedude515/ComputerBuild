@@ -1,107 +1,235 @@
 package ui;
-
+/*
+    This class will be used to create a GUI for the user to interact with. 
+    It will have a text field for the user to enter their name, and a button to submit the name. 
+    The name will be validated using the UserInputService class, and the validated name will be displayed on the GUI.
+ */
 //imports
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.CardLayout;
+import java.awt.Insets;
 import javax.swing.*;
 import service.UserInputService;
 
 public class GUIManager {
 
-    //fields that control the size of the GUI, and the components that are displayed on it. The frame is the main window that contains all the other components. The buttons are used to perform actions, and the text field is used to collect user input. The text area is used to display output, and the label is used to display instructions or questions.
+    /*fields that control the size of the GUI, and the components that are displayed on it. 
+        The frame is the main window that contains all the other components. The buttons are used to perform actions, 
+        and the text field is used to collect user input. The text area is used to display output, 
+        and the label is used to display instructions or questions.
+    */
     private JFrame frame;
     private int width;
     private int height;
 
-    //buttons to confirm user input, or to perform an action, like a submit button. They can be set to be enabled or disabled, and can have an action listener attached to them.
-    private JButton nameButton;
-
-    //text field to collect user input, it can be set to a certain number of columns, which is the width of the text field
-    private JTextField nameInput;
-
-    //text area to display output, or for user input, or both. It can be used to display multiple lines of text, and can be set to be editable or not.
-    private JTextArea ta;
+    //create cardLayout to switch between different panels, and a flow layout to arrange components in a row
+    private CardLayout cardLayout;
+    private JPanel mainPanel, homePanel, createBuildPanel;
 
     //all labels like questions, instructions, and output should be in a JLabel object
-    private JLabel nameLabel;
+    private JLabel nameLabel, buildNameLabel, budgetLabel, targetYearLabel, gamingGenreLabel, screenResolutionLabel, frameRateLabel;
+
+    //text field to collect user input, it can be set to a certain number of columns, which is the width of the text field
+    private JTextField nameInput, buildNameInput, budgetInput, targetYearInput, gamingGenreInput, screenResolutionInput, frameRateInput;
+
+    //text area to display output, or for user input, or both. It can be used to display multiple lines of text, 
+    // and can be set to be editable or not.
+    private JTextArea ta;
 
 
     //create constructor
+    //This sets the Frame and controls what is printed to the user, and how the user can interact with the GUI. 
+    // It also sets the size of the frame.
     public GUIManager(int w, int h) {
+        
         //sets the Frame
         frame = new JFrame();
-
-        //labels
-        nameLabel = new JLabel("Name: ");
-
-        //text fields
-        nameInput = new JTextField(10);
-
-        //text areas
-
-        //buttons
-        nameButton = new JButton("Submit");
 
         //sets the size of the frame
         width = w;
         height = h;
+
+        //set the cardlayout and main panel
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        //labels
+        nameLabel = new JLabel("Name: ");
+        buildNameLabel = new JLabel("PC Build Name: ");
+        budgetLabel = new JLabel("Budget: ");
+        targetYearLabel = new JLabel("Target Year: ");
+        gamingGenreLabel = new JLabel("Gaming Genre: ");
+        screenResolutionLabel = new JLabel("Screen Resolution: ");
+        frameRateLabel = new JLabel("Frame Rate: ");
+
+        //text fields
+        nameInput = new JTextField(10);
+        buildNameInput = new JTextField(10);
+        budgetInput = new JTextField(10);
+        targetYearInput = new JTextField(10);
+        gamingGenreInput = new JTextField(10);
+        screenResolutionInput = new JTextField(10);
+        frameRateInput = new JTextField(10);
     }
 
-    //this function controls what is being displayed on the GUI, and how it is laid out. It also sets the size of the frame and makes it visible.
-    public void setUpGUI() {
+    //setup the home panel
+    private JPanel createHomePanel() {
+        //create a new panel with a grid bag layout
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
-        //set the frame up
-        Container cp = frame.getContentPane();
-        FlowLayout flow = new FlowLayout();
-        //BorderLayout brdr =  new BorderLayout();
-        cp.setLayout(flow);
+        //set the insets for the components
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        //create a label to display the title of the application
+        JLabel titleLabel = new JLabel("Welcome to PCBuilder Unlimited!");
+
+        //set font of the title label
+        titleLabel.setFont(titleLabel.getFont().deriveFont(24.0f));
+
+        //add the title label to the panel
+        gbc.gridy = 0;
+        panel.add(titleLabel, gbc);
+
+        //create a button to navigate to the create build panel and add it to the panel
+        JButton createBuildButton = new JButton("Create Build");
+        gbc.gridy = 1;
+        panel.add(createBuildButton, gbc);
+
+        //create a button to navigate to the browse build panel and add it to the panel
+        JButton browseButton = new JButton("Browse Build");
+        gbc.gridy = 2;
+        panel.add(browseButton, gbc);
+
+        //create a button to navigate to the edit build panel and add it to the panel
+        JButton editButton = new JButton("Edit Build");
+        gbc.gridy = 3;
+        panel.add(editButton, gbc);
+
+        //create a button to exit the application and add it to the panel
+        JButton exitButton = new JButton("Exit");
+        gbc.gridy = 4;
+        panel.add(exitButton, gbc);
+
+        //create action listener for the create build button
+        createBuildButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "CREATE");
+        });
+
+        //create action listener for the browse build button
+        browseButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "BROWSE");
+        });
+
+        //create action listener for the edit build button
+        editButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "EDIT");
+        });
+
+        //create action listener for the exit button
+        exitButton.addActionListener(e -> frame.dispose());
+
+        return panel;
+    }
+
+    //setup the create Build panel
+    private JPanel createBuildPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        //add components to the panel
+        //Name
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(nameLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(nameInput, gbc);
+
+        //Build Name
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(buildNameLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(buildNameInput, gbc);
+
+        //Budget
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(budgetLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(budgetInput, gbc);
+
+        //Target Year
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        panel.add(targetYearLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(targetYearInput, gbc);
+
+        //Gaming Genre
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        panel.add(gamingGenreLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(gamingGenreInput, gbc);
+
+        //Screen Resolution
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        panel.add(screenResolutionLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(screenResolutionInput, gbc);
+
+        //Frame Rate
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        panel.add(frameRateLabel, gbc);
+        gbc.gridx = 1;
+        panel.add(frameRateInput, gbc);
+
+        //add back button
+        JButton backButton = new JButton("Back");
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(backButton, gbc);
+        
+        //create action listener for back button
+        backButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "HOME");
+        });
+
+        return panel;
+    }
+
+    //this function controls what is being displayed on the GUI, and how it is laid out. 
+    // It also sets the size of the frame and makes it visible.
+    public void setUpGUI() {
+       
+        //set up the home panel
+        homePanel = createHomePanel();
+        createBuildPanel = createBuildPanel();
+
+        //add the panels to the main panel
+        mainPanel.add(homePanel, "HOME");
+        mainPanel.add(createBuildPanel, "CREATE");
+
+        //set the frame size, title, and default close operation.
         frame.setSize(width, height);
         frame.setTitle("PCBuilder Unlimited");
-        //have to add which region in add statements when using borderlayout
-        cp.add(nameLabel);
-        cp.add(nameInput);
-        cp.add(nameButton);
+        frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+
+        //Open home screen first
+        cardLayout.show(mainPanel, "HOME");
+
+        //center the window on the screen
         frame.setVisible(true);
     }
-    
-    //button listener setup
-    public void setUpButtonListeners() {
-
-        //call user input service to validate the name
-        UserInputService userInputService = new UserInputService();
-
-        //create action Listener 
-        ActionListener buttonListener = new ActionListener() {
-
-            //create action performed
-            @Override 
-            public void actionPerformed(ActionEvent ae) {
-                //create object to validate button presses
-                //getSource() function determines what action takes place
-                Object o = ae.getSource();
-
-                //validate the nameButton using the Object o variable
-                if(o == nameButton){
-                    //collect String data to copy to a label
-                    String s = nameInput.getText();
-                    String validatedName = userInputService.getUserName(s);
-                    //set input text field to be an empty string after setting the label)
-                        nameLabel.setText("Name: " + validatedName);
-                    } else {
-                        nameLabel.setText("Invalid input. Please enter a name that is not null and less than 10 characters.");
-                    }
-                    
-                    //make the box empty after the user presses the button, so they can enter a new name if they want to
-                    nameInput.setText("");
-                }
-            };
-
-        //attach our button to the listener
-        nameButton.addActionListener(buttonListener);
-    }
-
-    
 }

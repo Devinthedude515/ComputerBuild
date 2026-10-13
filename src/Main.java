@@ -6,7 +6,6 @@ public class Main {
         
         GUIManager gd = new GUIManager(1920, 1080);
         gd.setUpGUI();
-        gd.setUpButtonListeners();
         
         /* 
         //use UserInputService to gather user data for processing
