@@ -5,16 +5,13 @@ package ui;
     The name will be validated using the UserInputService class, and the validated name will be displayed on the GUI.
  */
 //imports
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.CardLayout;
-import java.awt.Insets;
+import java.awt.*;
 import javax.swing.*;
-import service.UserInputService;
 
 public class GUIManager {
 
-    /*fields that control the size of the GUI, and the components that are displayed on it. 
+    /*  
+        fields that control the size of the GUI, and the components that are displayed on it. 
         The frame is the main window that contains all the other components. The buttons are used to perform actions, 
         and the text field is used to collect user input. The text area is used to display output, 
         and the label is used to display instructions or questions.
@@ -73,11 +70,35 @@ public class GUIManager {
         frameRateInput = new JTextField(10);
     }
 
+    //create method to style the buttons
+    //styling for the buttons
+    private void styleMenuButton(JButton button) {
+        //set the dimensions
+        button.setPreferredSize(new Dimension(240, 50));
+        
+        //set the Font
+        button.setFont(new Font("SansSerif", Font.BOLD, 16));
+
+        //set the background and Foreground colors
+        button.setBackground(new Color(30, 144, 255));
+        button.setForeground(Color.WHITE);
+    }
+
+    //method to style the labels
+    private void styleLabel(JLabel label) {
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("SansSerif", Font.BOLD, 16));
+    }
     //setup the home panel
     private JPanel createHomePanel() {
         //create a new panel with a grid bag layout
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
+
+        //set background color of the panel
+        panel.setBackground(new Color(15, 23, 42));
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
 
         //set the insets for the components
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -86,7 +107,8 @@ public class GUIManager {
         JLabel titleLabel = new JLabel("Welcome to PCBuilder Unlimited!");
 
         //set font of the title label
-        titleLabel.setFont(titleLabel.getFont().deriveFont(24.0f));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 30));
 
         //add the title label to the panel
         gbc.gridy = 0;
@@ -112,6 +134,12 @@ public class GUIManager {
         gbc.gridy = 4;
         panel.add(exitButton, gbc);
 
+        //style the buttons
+        styleMenuButton(createBuildButton);
+        styleMenuButton(browseButton);
+        styleMenuButton(editButton);
+        styleMenuButton(exitButton);
+
         //create action listener for the create build button
         createBuildButton.addActionListener(e -> {
             cardLayout.show(mainPanel, "CREATE");
@@ -135,11 +163,26 @@ public class GUIManager {
 
     //setup the create Build panel
     private JPanel createBuildPanel() {
+        //create panel and set the layout
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        //set background color of the panel
+        panel.setBackground(new Color(15, 23, 42));
+
+        //create a title for the create build panel
+        JLabel titleLabel = new JLabel("Create Build");
+
+        //set the font and color for the title label
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+        
+        //add the title label to the panel
+        gbc.gridy = 0;
+        panel.add(titleLabel, gbc);
 
         //add components to the panel
         //Name
@@ -198,6 +241,15 @@ public class GUIManager {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         panel.add(backButton, gbc);
+
+        //style all the labels
+        styleLabel(nameLabel);
+        styleLabel(buildNameLabel);
+        styleLabel(budgetLabel);
+        styleLabel(targetYearLabel);
+        styleLabel(gamingGenreLabel);
+        styleLabel(screenResolutionLabel);
+        styleLabel(frameRateLabel);
         
         //create action listener for back button
         backButton.addActionListener(e -> {
