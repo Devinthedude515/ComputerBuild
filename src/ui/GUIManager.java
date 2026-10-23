@@ -22,7 +22,7 @@ public class GUIManager {
 
     //create cardLayout to switch between different panels, and a flow layout to arrange components in a row
     private CardLayout cardLayout;
-    private JPanel mainPanel, homePanel, createBuildPanel;
+    private JPanel mainPanel, homePanel, createBuildPanel, submittedPanel;
 
     //all labels like questions, instructions, and output should be in a JLabel object
     private JLabel nameLabel, buildNameLabel, budgetLabel, targetYearLabel, gamingGenreLabel, screenResolutionLabel, frameRateLabel;
@@ -167,80 +167,88 @@ public class GUIManager {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //set background color of the panel
         panel.setBackground(new Color(15, 23, 42));
 
         //create a title for the create build panel
-        JLabel titleLabel = new JLabel("Create Build");
+        JLabel createBuildLabel = new JLabel("Step 1: Enter Specifications");
 
         //set the font and color for the title label
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
-        titleLabel.setForeground(Color.WHITE);
+        createBuildLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        createBuildLabel.setForeground(Color.WHITE);
         
         //add the title label to the panel
         gbc.gridy = 0;
-        panel.add(titleLabel, gbc);
+        panel.add(createBuildLabel, gbc);
 
         //add components to the panel
         //Name
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         panel.add(nameLabel, gbc);
         gbc.gridx = 1;
         panel.add(nameInput, gbc);
 
         //Build Name
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         panel.add(buildNameLabel, gbc);
         gbc.gridx = 1;
         panel.add(buildNameInput, gbc);
 
         //Budget
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         panel.add(budgetLabel, gbc);
         gbc.gridx = 1;
         panel.add(budgetInput, gbc);
 
         //Target Year
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         panel.add(targetYearLabel, gbc);
         gbc.gridx = 1;
         panel.add(targetYearInput, gbc);
 
         //Gaming Genre
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         panel.add(gamingGenreLabel, gbc);
         gbc.gridx = 1;
         panel.add(gamingGenreInput, gbc);
 
         //Screen Resolution
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         panel.add(screenResolutionLabel, gbc);
         gbc.gridx = 1;
         panel.add(screenResolutionInput, gbc);
 
         //Frame Rate
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         panel.add(frameRateLabel, gbc);
         gbc.gridx = 1;
         panel.add(frameRateInput, gbc);
 
-        //add back button
+        //add back button and submit button
         JButton backButton = new JButton("Back");
+        JButton submitButton = new JButton("Submit");
+        
+        //create a panel to hold the buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        buttonPanel.add(backButton, gbc);
+        buttonPanel.add(submitButton, gbc);
+
+        //add the button panel to the main panel
         gbc.gridx = 0;
         gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
-        panel.add(backButton, gbc);
+        panel.add(buttonPanel, gbc);
 
         //style all the labels
         styleLabel(nameLabel);
@@ -256,6 +264,59 @@ public class GUIManager {
             cardLayout.show(mainPanel, "HOME");
         });
 
+        //create action listener for submit button
+        submitButton.addActionListener(e ->
+            cardLayout.show(mainPanel, "SUBMITTED")
+        );
+
+        return panel;
+    }
+
+    private JPanel createSubmittedPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+
+        JLabel title = new JLabel("Build Submitted!");
+        title.setFont(new Font("SansSerif", Font.BOLD, 28));
+
+        JLabel message = new JLabel("Your build information has been received.");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.insets = new Insets(15, 10, 15, 10);
+
+        gbc.gridy = 0;
+        panel.add(title, gbc);
+
+        gbc.gridy = 1;
+        panel.add(message, gbc);
+
+        //add back button and submit button
+        JButton homeButton = new JButton("Home");
+        JButton finishButton = new JButton("Finish");
+        
+        //create a panel to hold the buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        buttonPanel.add(homeButton, gbc);
+        buttonPanel.add(finishButton, gbc);
+
+        //add the button panel to the main panel
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        panel.add(buttonPanel, gbc);
+
+        //create action listener for back button
+        homeButton.addActionListener(e -> {
+            cardLayout.show(mainPanel, "HOME");
+        });
+
+        //create action listener for submit button
+        finishButton.addActionListener(e ->
+            cardLayout.show(mainPanel, "HOME")
+        );
+
         return panel;
     }
 
@@ -266,10 +327,12 @@ public class GUIManager {
         //set up the home panel
         homePanel = createHomePanel();
         createBuildPanel = createBuildPanel();
+        submittedPanel = createSubmittedPanel();
 
         //add the panels to the main panel
         mainPanel.add(homePanel, "HOME");
         mainPanel.add(createBuildPanel, "CREATE");
+        mainPanel.add(submittedPanel, "SUBMITTED");
 
         //set the frame size, title, and default close operation.
         frame.setSize(width, height);
