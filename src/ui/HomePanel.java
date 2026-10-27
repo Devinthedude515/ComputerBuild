@@ -47,6 +47,12 @@ public class HomePanel extends JPanel {
         exitButton.addActionListener(e -> onExit.run());
         gbc.gridy = 4;
         add(exitButton, gbc);
+
+        //style the buttons using the UIStyles class
+        UIStyles.styleMenuButton(createBuildButton);
+        UIStyles.styleMenuButton(browseBuildButton);
+        UIStyles.styleMenuButton(editBuildButton);
+        UIStyles.styleMenuButton(exitButton);
     }
 
     //create private createMenuButton
