@@ -89,77 +89,6 @@ public class GUIManager {
         label.setForeground(Color.WHITE);
         label.setFont(new Font("SansSerif", Font.BOLD, 16));
     }
-    //setup the home panel
-    private JPanel createHomePanel() {
-        //create a new panel with a grid bag layout
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        //set background color of the panel
-        panel.setBackground(new Color(15, 23, 42));
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        //set the insets for the components
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        //create a label to display the title of the application
-        JLabel titleLabel = new JLabel("Welcome to PCBuilder Unlimited!");
-
-        //set font of the title label
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 30));
-
-        //add the title label to the panel
-        gbc.gridy = 0;
-        panel.add(titleLabel, gbc);
-
-        //create a button to navigate to the create build panel and add it to the panel
-        JButton createBuildButton = new JButton("Create Build");
-        gbc.gridy = 1;
-        panel.add(createBuildButton, gbc);
-
-        //create a button to navigate to the browse build panel and add it to the panel
-        JButton browseButton = new JButton("Browse Build");
-        gbc.gridy = 2;
-        panel.add(browseButton, gbc);
-
-        //create a button to navigate to the edit build panel and add it to the panel
-        JButton editButton = new JButton("Edit Build");
-        gbc.gridy = 3;
-        panel.add(editButton, gbc);
-
-        //create a button to exit the application and add it to the panel
-        JButton exitButton = new JButton("Exit");
-        gbc.gridy = 4;
-        panel.add(exitButton, gbc);
-
-        //style the buttons
-        styleMenuButton(createBuildButton);
-        styleMenuButton(browseButton);
-        styleMenuButton(editButton);
-        styleMenuButton(exitButton);
-
-        //create action listener for the create build button
-        createBuildButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "CREATE");
-        });
-
-        //create action listener for the browse build button
-        browseButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "BROWSE");
-        });
-
-        //create action listener for the edit build button
-        editButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "EDIT");
-        });
-
-        //create action listener for the exit button
-        exitButton.addActionListener(e -> frame.dispose());
-
-        return panel;
-    }
 
     //setup the create Build panel
     private JPanel createBuildPanel() {
@@ -325,7 +254,17 @@ public class GUIManager {
     public void setUpGUI() {
        
         //set up the home panel
-        homePanel = createHomePanel();
+        homePanel = new HomePanel(
+            () -> cardLayout.show(mainPanel, "CREATE"),
+            
+            () -> JOptionPane.showMessageDialog(
+                frame, "Browse Build is not implemented yet."),
+
+            () -> JOptionPane.showMessageDialog(
+                frame, "Edit Build is not implemented yet."),
+
+            () -> frame.dispose()
+        );
         createBuildPanel = createBuildPanel();
         submittedPanel = createSubmittedPanel();
 
