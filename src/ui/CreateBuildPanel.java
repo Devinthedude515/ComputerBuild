@@ -1,9 +1,9 @@
 package ui;
 import java.awt.*;
 import javax.swing.*;
+import model.FrameRate;
 import model.GamingGenre;
 import model.ScreenResolution;
-import model.FrameRate;
 
 
 public class CreateBuildPanel extends JPanel {
@@ -201,10 +201,16 @@ public class CreateBuildPanel extends JPanel {
         JButton backButton = new JButton("Back");
         JButton submitButton = new JButton("Submit");
 
+        //style the buttons using the UIStyles class
+        UIStyles.styleMenuButton(backButton);
+        UIStyles.styleMenuButton(submitButton);
+
         //create a panel to hold the buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         buttonPanel.add(backButton);
         buttonPanel.add(submitButton);
+        //set the background color of the button panel to match the main panel
+        buttonPanel.setBackground(new Color(15, 23, 42));
 
         //add the button panel to the main panel
         gbc.gridx = 0;
