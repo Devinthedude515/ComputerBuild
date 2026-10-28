@@ -47,56 +47,7 @@ public class GUIManager {
 
     }
 
-    private JPanel createSubmittedPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-
-        JLabel title = new JLabel("Build Submitted!");
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
-
-        JLabel message = new JLabel("Your build information has been received.");
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.insets = new Insets(15, 10, 15, 10);
-
-        gbc.gridy = 0;
-        panel.add(title, gbc);
-
-        gbc.gridy = 1;
-        panel.add(message, gbc);
-
-        //add back button and submit button
-        JButton homeButton = new JButton("Home");
-        JButton finishButton = new JButton("Finish");
-        
-        //create a panel to hold the buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
-        buttonPanel.add(homeButton, gbc);
-        buttonPanel.add(finishButton, gbc);
-
-        //add the button panel to the main panel
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(buttonPanel, gbc);
-
-        //create action listener for back button
-        homeButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "HOME");
-        });
-
-        //create action listener for submit button
-        finishButton.addActionListener(e ->
-            cardLayout.show(mainPanel, "HOME")
-        );
-
-        return panel;
-    }
-
     //this function controls what is being displayed on the GUI, and how it is laid out. 
-    // It also sets the size of the frame and makes it visible.
     public void setUpGUI() {
        
         //set up the home panel
@@ -121,7 +72,10 @@ public class GUIManager {
             () -> cardLayout.show(mainPanel, "SUBMITTED")
         );
 
-        submittedPanel = createSubmittedPanel();
+        submittedPanel = new SubmittedPanel(
+            //use lambda expressions to define the actions for each button
+            () -> cardLayout.show(mainPanel, "HOME")
+        );
 
         //add the panels to the main panel
         mainPanel.add(homePanel, "HOME");

@@ -57,6 +57,7 @@ public class HomePanel extends JPanel {
 
     //create private createMenuButton
     private JButton createMenuButton(String text) {
+        
         JButton button = new JButton(text);
 
         //set common button properties

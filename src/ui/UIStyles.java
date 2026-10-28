@@ -23,4 +23,24 @@ public class UIStyles {
         label.setForeground(Color.WHITE);
         label.setFont(new Font("SansSerif", Font.BOLD, 16));
     }
+
+    //method to style Dropdowns
+    public static void styleComboBox(JComboBox<?> comboBox) {
+        comboBox.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        comboBox.setPreferredSize(new Dimension(220, 38));
+        comboBox.setBackground(Color.WHITE);
+        comboBox.setForeground(new Color(15, 23, 42));
+    }
+
+    //method to style the help buttons
+    public static void styleHelpButton(JButton button) {
+        button.setPreferredSize(new Dimension(28, 28));
+        button.setFont(new Font("SansSerif", Font.BOLD, 14));
+        button.setBackground(new Color(30, 144, 255));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+        button.setMargin(new Insets(0, 0, 0, 0));
+    }
 }
