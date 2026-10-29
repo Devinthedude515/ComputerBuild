@@ -133,9 +133,15 @@ public class CreateBuildPanel extends JPanel {
         add(nameLabel, gbc);
         gbc.gridx = 1;
         add(nameInput, gbc);
+        
         //add name help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(nameHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //Build Name
         gbc.gridx = 0;
@@ -143,9 +149,15 @@ public class CreateBuildPanel extends JPanel {
         add(buildNameLabel, gbc);
         gbc.gridx = 1;
         add(buildNameInput, gbc);
+
         //add build name help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(buildNameHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //Budget
         gbc.gridx = 0;
@@ -153,9 +165,15 @@ public class CreateBuildPanel extends JPanel {
         add(budgetLabel, gbc);
         gbc.gridx = 1;
         add(budgetInput, gbc);
+
         //add budget help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(budgetHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //Target Year
         gbc.gridx = 0;
@@ -163,9 +181,15 @@ public class CreateBuildPanel extends JPanel {
         add(targetYearLabel, gbc);
         gbc.gridx = 1;
         add(targetYearInput, gbc);
+
         //add target year help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(targetYearHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //Gaming Genre
         gbc.gridx = 0;
@@ -173,9 +197,15 @@ public class CreateBuildPanel extends JPanel {
         add(gamingGenreLabel, gbc);
         gbc.gridx = 1;
         add(gamingGenreInput, gbc);
+
         //add gaming genre help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(genreHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //Screen Resolution
         gbc.gridx = 0;
@@ -183,9 +213,15 @@ public class CreateBuildPanel extends JPanel {
         add(screenResolutionLabel, gbc);
         gbc.gridx = 1;
         add(screenResolutionInput, gbc);
+
         //add screen resolution help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(resolutionHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //Frame Rate
         gbc.gridx = 0;
@@ -193,9 +229,15 @@ public class CreateBuildPanel extends JPanel {
         add(frameRateLabel, gbc);
         gbc.gridx = 1;
         add(frameRateInput, gbc);
+
         //add frame rate help button
         gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.CENTER;
         add(frameRateHelp, gbc);
+
+        //reset back to fill horizontal for the rest of the components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         //add back button and submit button
         JButton backButton = new JButton("Back");
@@ -230,18 +272,37 @@ public class CreateBuildPanel extends JPanel {
     //create helpButton method to give user instructions on how to fill out the form
     private JButton createHelpButton(String hint) {
 
-        JButton helpButton = new JButton("?");
+        JButton helpButton = new JButton("?") {
+
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+
+                    g2.setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON
+                    );
+
+                    // Change color when the button is pressed
+                    if (getModel().isArmed()) {
+                        g2.setColor(new Color(20, 100, 190));
+                    } else {
+                        g2.setColor(new Color(30, 144, 255));
+                    }
+
+                    // Draw the circular background
+                    g2.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
+                    g2.dispose();
+
+                    super.paintComponent(g);
+                }
+        };
 
         //set the font and color for the help button
         helpButton.setToolTipText("Click for help");
 
         //use UIStyles class to style the button
         UIStyles.styleMenuButton(helpButton);
-
-        //finish styling the button
-        helpButton.setFocusPainted(false);
-        helpButton.setBorderPainted(false);
-        helpButton.setMargin(new Insets(0, 0, 0, 0));
 
         //create action listener for help button
         helpButton.addActionListener(e -> {
