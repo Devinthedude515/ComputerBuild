@@ -1,10 +1,10 @@
 package ui;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
+import javax.swing.*;
 
-public class BrowseBuild extends JPanel {
+public class BrowseBuildPanel extends JPanel {
 
     //create constructor
     public BrowseBuildPanel(Runnable onBack, Consumer<BuildCard> onBuildSelected) {
@@ -57,9 +57,7 @@ public class BrowseBuild extends JPanel {
             BuildCard card = new BuildCard(
                 build[0],
                 build[1],
-                () -> onBuildSelected.accept(
-                    new BuildCard(build[0], build[1], () -> {})
-                )
+                () -> onBuildSelected.accept(new BuildCard(build[0], build[1], () -> {}))
             );
             buildGrid.add(card);
         }

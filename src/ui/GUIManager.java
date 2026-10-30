@@ -28,6 +28,10 @@ public class GUIManager {
     // and can be set to be editable or not.
     private JTextArea ta;
 
+    //create variables for the browseBuildPanel and the buildDetailsPanel
+    private BrowseBuildPanel browseBuildPanel;
+    private BuildDetailsPanel buildDetailsPanel;
+
 
     //create constructor
     //This sets the Frame and controls what is printed to the user, and how the user can interact with the GUI. 
@@ -52,11 +56,11 @@ public class GUIManager {
        
         //set up the home panel
         homePanel = new HomePanel(
+            
             //use lambda expressions to define the actions for each button
             () -> cardLayout.show(mainPanel, "CREATE"),
             
-            () -> JOptionPane.showMessageDialog(
-                frame, "Browse Build is not implemented yet."),
+            () -> cardLayout.show(mainPanel, "BROWSE"),
 
             () -> JOptionPane.showMessageDialog(
                 frame, "Edit Build is not implemented yet."),
@@ -72,6 +76,23 @@ public class GUIManager {
             () -> cardLayout.show(mainPanel, "SUBMITTED")
         );
 
+        // Create the browse gallery
+        browseBuildPanel = new BrowseBuildPanel(
+            //use lambda expressions to define the actions for each button
+            () -> cardLayout.show(mainPanel, "HOME"),
+
+            card -> {
+
+                buildDetailsPanel.showBuild(card.getBuildName(), card.getCreator());
+
+                cardLayout.show(mainPanel, "BUILD_DETAILS");
+            }
+        );
+        // Create the build details screen
+        buildDetailsPanel = new BuildDetailsPanel(
+            () -> cardLayout.show(mainPanel, "BROWSE")
+        );
+
         submittedPanel = new SubmittedPanel(
             //use lambda expressions to define the actions for each button
             () -> cardLayout.show(mainPanel, "HOME")
@@ -81,6 +102,8 @@ public class GUIManager {
         mainPanel.add(homePanel, "HOME");
         mainPanel.add(createBuildPanel, "CREATE");
         mainPanel.add(submittedPanel, "SUBMITTED");
+        mainPanel.add(browseBuildPanel, "BROWSE");
+mainPanel.add(buildDetailsPanel, "BUILD_DETAILS");
 
         //set the frame size, title, and default close operation.
         frame.setSize(width, height);
