@@ -24,6 +24,12 @@ public class UIStyles {
         label.setFont(new Font("SansSerif", Font.BOLD, 16));
     }
 
+    //method to style the title
+    public static void styleTitleLabel(JLabel label) {
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("SansSerif", Font.BOLD, 24));
+    }
+
     //method to style Dropdowns
     public static void styleComboBox(JComboBox<?> comboBox) {
         
