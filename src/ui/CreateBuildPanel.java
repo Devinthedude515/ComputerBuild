@@ -1,9 +1,9 @@
 package ui;
 import java.awt.*;
+import java.util.function.Consumer;
 import javax.swing.*;
-import model.FrameRate;
-import model.GamingGenre;
-import model.ScreenResolution;
+import model.*;
+
 
 
 public class CreateBuildPanel extends JPanel {
@@ -20,7 +20,7 @@ public class CreateBuildPanel extends JPanel {
     private JComboBox<FrameRate> frameRateInput;
 
     //create constructor
-    public CreateBuildPanel(Runnable onBack, Runnable onSubmit) {
+    public CreateBuildPanel(Runnable onBack, Consumer<BuildRequest> onSubmit) {
 
         //test
         System.out.println("Updated CreateBuildPanel is running!");
@@ -266,8 +266,55 @@ public class CreateBuildPanel extends JPanel {
         backButton.addActionListener(e -> onBack.run());
 
         //create action listener for submit button
-        submitButton.addActionListener(e -> onSubmit.run());
-    }
+        submitButton.addActionListener(e -> {
+
+            try {
+                // Retrieve user input
+                String name = nameInput.getText().trim();
+                String buildName = buildNameInput.getText().trim();
+
+                double budget = Double.parseDouble(budgetInput.getText().trim());
+                int targetYear = Integer.parseInt(targetYearInput.getText().trim());
+
+                // Validate input
+                if (name.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please enter your name.");
+                    return;
+                }
+
+                if (budget <= 0 || targetYear <= 0) {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Budget and target year must be positive."
+                    );
+                    return;
+                }
+
+                // Create BuildRequest
+                BuildRequest request = new BuildRequest(
+                    name,
+                    buildName,
+                    (ScreenResolution) screenResolutionInput.getSelectedItem(),
+                    budget,
+                    targetYear,
+                    (GamingGenre) gamingGenreInput.getSelectedItem(),
+                    (FrameRate) frameRateInput.getSelectedItem()
+                );
+
+                // Send request to GUIManager
+                onSubmit.accept(request);
+
+            } catch (NumberFormatException ex) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter valid numbers for budget and target year."
+                );
+            }
+
+        });
+    }//end of constructor
+  
 
     //create helpButton method to give user instructions on how to fill out the form
     private JButton createHelpButton(String hint) {
@@ -311,4 +358,4 @@ public class CreateBuildPanel extends JPanel {
         
         return helpButton;
     }
-}
+}//end of class

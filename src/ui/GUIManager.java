@@ -7,6 +7,7 @@ package ui;
 //imports
 import java.awt.*;
 import javax.swing.*;
+import model.*;
 
 public class GUIManager {
 
@@ -28,9 +29,14 @@ public class GUIManager {
     // and can be set to be editable or not.
     private JTextArea ta;
 
-    //create variables for the browseBuildPanel and the buildDetailsPanel
+    //create variables for the panels
     private BrowseBuildPanel browseBuildPanel;
     private BuildDetailsPanel buildDetailsPanel;
+    private ComponentSelectionPanel componentSelectionPanel;
+    
+    //create variables for the component library
+    private BuildRequest currentRequest;
+    private PCBuild completedBuild;
 
 
     //create constructor
@@ -73,7 +79,37 @@ public class GUIManager {
             //use lambda expressions to define the actions for each button
             () -> cardLayout.show(mainPanel, "HOME"),
 
-            () -> cardLayout.show(mainPanel, "SUBMITTED")
+            request -> {
+                
+                //store the user's specifications
+                currentRequest = request;
+
+                // remove the previos selection panel, if one exists
+                if (componentSelectionPanel != null) {
+                    mainPanel.remove(componentSelectionPanel);
+                }
+
+                //create the component selection panel, and add it to the main panel.
+                componentSelectionPanel = new ComponentSelectionPanel(
+                    currentRequest,
+                    new ComponentLibrary(),
+
+                    // Back button returns to Create Build
+                    () -> cardLayout.show(mainPanel, "CREATE"),
+
+                    // Submit button returns to Submitted panel
+                    build -> {
+                        completedBuild = build;
+                        cardLayout.show(mainPanel, "SUBMITTED");
+                    }
+                );
+                
+                mainPanel.add(componentSelectionPanel, "COMPONENT_SELECTION");
+                mainPanel.revalidate();
+                mainPanel.repaint();
+                
+                cardLayout.show(mainPanel, "COMPONENT_SELECTION");
+            }
         );
 
         // Create the browse gallery
@@ -88,6 +124,7 @@ public class GUIManager {
                 cardLayout.show(mainPanel, "BUILD_DETAILS");
             }
         );
+        
         // Create the build details screen
         buildDetailsPanel = new BuildDetailsPanel(
             () -> cardLayout.show(mainPanel, "BROWSE")
@@ -103,7 +140,7 @@ public class GUIManager {
         mainPanel.add(createBuildPanel, "CREATE");
         mainPanel.add(submittedPanel, "SUBMITTED");
         mainPanel.add(browseBuildPanel, "BROWSE");
-mainPanel.add(buildDetailsPanel, "BUILD_DETAILS");
+        mainPanel.add(buildDetailsPanel, "BUILD_DETAILS");
 
         //set the frame size, title, and default close operation.
         frame.setSize(width, height);
