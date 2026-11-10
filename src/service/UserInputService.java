@@ -196,9 +196,10 @@ public class UserInputService {
         return new BuildRequest(name, nameOfBuild, screenResolution, budget, targetYear, gamingGenre, frameRate);
     }
     
-
+    //collect user name
     public String getUserName(String name) {
 
+        //validate the user name to ensure it is not null and has a maximum length of 10 characters
         while (name == null || name.length() > 10) {
             
             return null;

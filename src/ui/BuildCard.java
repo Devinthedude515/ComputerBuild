@@ -3,17 +3,22 @@ package ui;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 import javax.swing.*;
+import model.*;
 
 public class BuildCard extends JPanel {
 
     //create local variables for the build card
     private String buildName;
     private String creator;
+    private BuildRequest request;
+    private PCBuild build;
 
     //create constructor for the build card
     public BuildCard(String buildName, String creator, Runnable onClick) {
-
+        
+        //assign the build name and creator
         this.buildName = buildName;
         this.creator = creator;
 
@@ -128,6 +133,22 @@ public class BuildCard extends JPanel {
         banner.addMouseListener(clickListener);
         nameLabel.addMouseListener(clickListener);
         creatorLabel.addMouseListener(clickListener);
+    }
+
+    //create a overloaded constructor
+    public BuildCard(BuildRequest request, PCBuild build, Consumer<BuildCard> onClick) {
+        //invokes the existing constructor so we dont need to rewrite the card layout
+        this(
+            request.getNameOfBuild() == null || 
+            request.getNameOfBuild().trim().isEmpty() 
+            ? "Unnamed Build" 
+            : request.getNameOfBuild(),
+            request.getName(),
+            onClick
+        );
+
+        this.request = request;
+        this.build = build;
     }
 
     //create getters for the build name and creator
