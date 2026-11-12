@@ -91,7 +91,26 @@ public class ComponentSelectionPanel extends JPanel {
         UIStyles.styleMenuButton(submitButton);
 
         backButton.addActionListener(e -> onBack.run());
-        submitButton.addActionListener(e -> onSubmit.accept(build));
+        submitButton.addActionListener(e -> { 
+
+            // Test whether the button is responding
+            JOptionPane.showMessageDialog(
+                this,
+                "Submit button was clicked!"
+            );
+
+            // Test the build's contents
+            System.out.println("===== PC BUILD TEST =====");
+
+            for (Component component : build.getSelectedComponents()) {
+                System.out.println(component.getName());
+            }
+
+            System.out.println("Total: $" + build.calculateTotalPrice());
+
+            // Submit the build
+            onSubmit.accept(build);
+        });
 
         //create button panel
         JPanel buttonPanel = new JPanel();
@@ -165,8 +184,7 @@ public class ComponentSelectionPanel extends JPanel {
         // Update the build whenever the selection changes
         dropdown.addActionListener(e -> {
 
-            Component selected =
-                (Component) dropdown.getSelectedItem();
+            Component selected = (Component) dropdown.getSelectedItem();
 
             if (selected == null) {
                 build.removeComponent(type);

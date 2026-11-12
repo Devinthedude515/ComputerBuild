@@ -3,12 +3,21 @@ package ui;
 import java.awt.*;
 import java.util.function.Consumer;
 import javax.swing.*;
+import model.BuildRequest;
+import model.PCBuild;
 
 public class BrowseBuildPanel extends JPanel {
+
+    //create local variables for the browse build panel
+    private JPanel buildGrid;
+    private Consumer<BuildCard> onBuildSelected;
 
     //create constructor
     public BrowseBuildPanel(Runnable onBack, Consumer<BuildCard> onBuildSelected) {
         
+        //assign the onBuildSelected consumer
+        this.onBuildSelected = onBuildSelected;
+
         //set the layout for the panel
         setLayout(new BorderLayout(15, 15));
         setBackground(new Color(15, 23, 42));
@@ -34,10 +43,9 @@ public class BrowseBuildPanel extends JPanel {
         add(header, BorderLayout.NORTH);
 
         //create grid containing sample build cards
-        JPanel buildGrid = new JPanel(new GridLayout(0, 3, 18, 18));
+        buildGrid = new JPanel(new GridLayout(0, 3, 18, 18));
         buildGrid.setBackground(new Color (15, 23, 42));
         buildGrid.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        add(buildGrid, BorderLayout.CENTER);
 
         // Temporary sample builds
         String[][] sampleBuilds = {
@@ -57,7 +65,7 @@ public class BrowseBuildPanel extends JPanel {
             BuildCard card = new BuildCard(
                 build[0],
                 build[1],
-                () -> onBuildSelected.accept(new BuildCard(build[0], build[1], () -> {}))
+                onBuildSelected
             );
             buildGrid.add(card);
         }
@@ -69,6 +77,17 @@ public class BrowseBuildPanel extends JPanel {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    //add build method
+    public void addBuild(BuildRequest request, PCBuild build) {
+
+        BuildCard newCard = new BuildCard(request, build, onBuildSelected);
+        
+        buildGrid.add(newCard, 0);
+
+        buildGrid.revalidate();
+        buildGrid.repaint();
     }
 
 }

@@ -99,7 +99,15 @@ public class GUIManager {
 
                     // Submit button returns to Submitted panel
                     build -> {
+
                         completedBuild = build;
+
+                        // Check that GUIManager received the build
+                        System.out.println("GUIManager received PC Build!");
+                        System.out.println("Total Cost: $" + completedBuild.calculateTotalPrice());
+
+                        // Add the completed build to the Browse Builds gallery
+                        browseBuildPanel.addBuild(currentRequest, completedBuild);
                         cardLayout.show(mainPanel, "SUBMITTED");
                     }
                 );
@@ -119,7 +127,10 @@ public class GUIManager {
 
             card -> {
 
-                buildDetailsPanel.showBuild(card.getBuildName(), card.getCreator());
+                BuildRequest request = card.getBuildRequest();
+                PCBuild build = card.getPCBuild();
+
+                buildDetailsPanel.showBuild(request, build);
 
                 cardLayout.show(mainPanel, "BUILD_DETAILS");
             }

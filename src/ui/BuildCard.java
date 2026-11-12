@@ -16,7 +16,7 @@ public class BuildCard extends JPanel {
     private PCBuild build;
 
     //create constructor for the build card
-    public BuildCard(String buildName, String creator, Runnable onClick) {
+    public BuildCard(String buildName, String creator, Consumer<BuildCard> onClick) {
         
         //assign the build name and creator
         this.buildName = buildName;
@@ -123,7 +123,7 @@ public class BuildCard extends JPanel {
         MouseAdapter clickListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                onClick.run();
+                onClick.accept(BuildCard.this);
             }
         };
 
@@ -151,7 +151,7 @@ public class BuildCard extends JPanel {
         this.build = build;
     }
 
-    //create getters for the build name and creator
+    //create getters for the build name, creater, build request, and PC build
     public String getBuildName() {
         return buildName;
     }
@@ -159,4 +159,12 @@ public class BuildCard extends JPanel {
     public String getCreator() {
         return creator;
     }  
+
+    public BuildRequest getBuildRequest() {
+        return request;
+    }
+
+    public PCBuild getPCBuild() {
+        return build;
+    }
 }
