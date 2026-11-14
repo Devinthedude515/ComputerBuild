@@ -1,4 +1,9 @@
-import model.*;
+package service;
+
+import model.BuildRequest;
+import model.Component;
+import model.ComponentType;
+import model.PCBuild;
 
 public class BuildScoringService {
 
@@ -10,9 +15,11 @@ public class BuildScoringService {
     // required for the initial scoring calculation
     public boolean canScore(PCBuild build) {
 
+        //ceghck if the build is null
         if (build == null) {
             return false;
         }
+
 
         Component cpu = build.getSelectedComponent(ComponentType.CPU);
 
@@ -50,5 +57,17 @@ public class BuildScoringService {
     public boolean isWithinBudget(PCBuild build,BuildRequest request) {
 
         return build.calculateTotalPrice() <= request.getBudget();
+    }
+
+    // Calculate a weighted score using CPU and GPU scores
+    private double calculateHardwareScore(double cpuScore, double gpuScore) {
+
+        return (gpuScore * GPU_WEIGHT) + (cpuScore * CPU_WEIGHT);
+    }
+
+    // Calculate the fixed console reference score
+    public double calculateConsoleScore(ConsoleReference console) {
+
+        return calculateHardwareScore(console.getCpuScore(), console.getGpuScore());
     }
 }

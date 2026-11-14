@@ -8,6 +8,7 @@ package ui;
 import java.awt.*;
 import javax.swing.*;
 import model.*;
+import service.BuildScoringService;
 
 public class GUIManager {
 
@@ -109,7 +110,31 @@ public class GUIManager {
                         // Add the completed build to the Browse Builds gallery
                         browseBuildPanel.addBuild(currentRequest, completedBuild);
                         cardLayout.show(mainPanel, "SUBMITTED");
+
+                        // Create the scoring service
+                        BuildScoringService scoringService = new BuildScoringService();
+
+                        // Check whether the build can be scored
+                        if (scoringService.canScore(completedBuild)) {
+
+                            double gamingScore = scoringService.calculateGamingScore(completedBuild);
+
+                            System.out.printf("Gaming Performance Score: %.1f / 100%n", gamingScore);
+
+                        } 
+                        else {
+
+                            System.out.println("Gaming score unavailable: CPU or GPU not selected.");
+                        }
+
+                        // Check the user's budget
+                        boolean withinBudget = scoringService.isWithinBudget(completedBuild, currentRequest);
+                        
+                        //print the budget
+                        System.out.println("Within Budget: " + withinBudget);
                     }
+
+                    
                 );
                 
                 mainPanel.add(componentSelectionPanel, "COMPONENT_SELECTION");
