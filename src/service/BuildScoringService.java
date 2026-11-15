@@ -15,7 +15,7 @@ public class BuildScoringService {
     // required for the initial scoring calculation
     public boolean canScore(PCBuild build) {
 
-        //ceghck if the build is null
+        //check if the build is null
         if (build == null) {
             return false;
         }
@@ -33,9 +33,7 @@ public class BuildScoringService {
 
         // Make sure both required components exist
         if (!canScore(build)) {
-            throw new IllegalArgumentException(
-                "A CPU and GPU are required to calculate a gaming score."
-            );
+            throw new IllegalArgumentException("A CPU and GPU are required to calculate a gaming score.");
         }
 
         // Retrieve the selected components
@@ -48,9 +46,7 @@ public class BuildScoringService {
         double gpuScore = gpu.getPerformanceScore();
 
         // Calculate the weighted gaming score
-        double gamingScore = (gpuScore * GPU_WEIGHT) + (cpuScore * CPU_WEIGHT);
-
-        return gamingScore;
+        return calculateHardwareScore(cpuScore, gpuScore);
     }
 
     // Check whether the finished build is within budget
@@ -70,4 +66,5 @@ public class BuildScoringService {
 
         return calculateHardwareScore(console.getCpuScore(), console.getGpuScore());
     }
+    
 }

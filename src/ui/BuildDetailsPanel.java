@@ -7,12 +7,16 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import model.*;
 import model.Component;
+import service.BuildScoringService;
+import service.ConsoleReference;
 
 
 public class BuildDetailsPanel extends JPanel {
     
     //create private Variables to reflect user input
-    private JLabel nameLabel, buildNameLabel, budgetLabel, targetYearLabel, gamingGenreLabel, screenResolutionLabel, frameRateLabel;
+    private JLabel nameLabel, buildNameLabel, budgetLabel, targetYearLabel, 
+                   gamingGenreLabel, screenResolutionLabel, frameRateLabel,
+                   pcScoreLabel, ps5ScoreLabel, xboxScoreLabel;
 
     //set final color scheme's for the section and background
     private final Color backGroundColor = new Color(15, 23, 42);
@@ -28,6 +32,9 @@ public class BuildDetailsPanel extends JPanel {
 
     //create NumberFormat for currency
     private NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
+
+    //create a BuildScoreService object
+    private BuildScoringService scoringService = new BuildScoringService();
 
     //create constructor
     public BuildDetailsPanel(Runnable onBack) {
@@ -147,10 +154,28 @@ public class BuildDetailsPanel extends JPanel {
         //add the cost panel
         addSection(costPanel, 2);
 
+        // ============================
+        // SECTION 4: PERFORMANCE COMPARISON
+        // ============================
+
+        JPanel scoringPanel = createSection(
+            "Gaming Performance Comparison"
+        );
+
+        pcScoreLabel = createLabel();
+        ps5ScoreLabel = createLabel();
+        xboxScoreLabel = createLabel();
+
+        addRow(scoringPanel, "Your PC:", pcScoreLabel, 1);
+        addRow(scoringPanel, "PlayStation 5:", ps5ScoreLabel, 2);
+        addRow(scoringPanel, "Xbox Series X:", xboxScoreLabel, 3);
+
+        addSection(scoringPanel, 3);
+
         //keep sections aligned at the top of the panel
         GridBagConstraints filler = new GridBagConstraints();
         filler.gridx = 0;
-        filler.gridy = 3;
+        filler.gridy = 4;
         filler.weighty = 1.0; //distributes vertical space to push the sections to the top
         filler.fill = GridBagConstraints.VERTICAL;
 
@@ -287,10 +312,7 @@ public class BuildDetailsPanel extends JPanel {
 
             //check if null then display "Not Selected" else display the component name and price
             if (component != null) {
-                    label.setText(
-                    component.getName() + " - " +
-                    currency.format(component.getPrice())
-                );
+                    label.setText(component.getName() + " - " + currency.format(component.getPrice()));
             } 
             else {
                 label.setText("Not Selected");
@@ -298,7 +320,7 @@ public class BuildDetailsPanel extends JPanel {
         }
 
         //create total and remaing values to keep track of the total price and remaining budget
-         double total = build.calculateTotalPrice();
+        double total = build.calculateTotalPrice();
         double remaining = build.getRemainingBudget(request.getBudget());
 
         // Display total price
@@ -314,9 +336,33 @@ public class BuildDetailsPanel extends JPanel {
             remainingBudgetLabel.setForeground(new Color(74, 222, 128));
         }
 
+        // Calculate the custom PC score
+        if (scoringService.canScore(build)) {
+
+            double pcScore = scoringService.calculateGamingScore(build);
+
+            pcScoreLabel.setText(String.format(Locale.US, "%.1f / 100", pcScore));
+
+        } 
+        else {
+
+            pcScoreLabel.setText("CPU or GPU not selected");
+        }
+
+        // Calculate fixed console reference scores
+        double ps5Score = scoringService.calculateConsoleScore(ConsoleReference.PS5);
+
+        double xboxScore = scoringService.calculateConsoleScore(ConsoleReference.XBOX_SERIES_X);
+
+        ps5ScoreLabel.setText(String.format(Locale.US, "%.1f / 100 (demo)", ps5Score));
+
+        xboxScoreLabel.setText(String.format(Locale.US, "%.1f / 100 (demo)", xboxScore));
+
         //set vertical scroll bar to the top of the panel
         scrollPane.getVerticalScrollBar().setValue(0);
     }
+
+    
 
     //method to show the Build once opened
     public void showBuild(String buildName, String creator) {
@@ -329,6 +375,9 @@ public class BuildDetailsPanel extends JPanel {
         gamingGenreLabel.setText("Not available");
         screenResolutionLabel.setText("Not available");
         frameRateLabel.setText("Not available");
+        pcScoreLabel.setText("Not available");
+        ps5ScoreLabel.setText("Not available");
+        xboxScoreLabel.setText("Not available");
 
         for (JLabel label : componentLabels.values()) {
             label.setText("Not available");

@@ -7,8 +7,12 @@ package ui;
 //imports
 import java.awt.*;
 import javax.swing.*;
-import model.*;
+import model.BuildRequest;
+import model.Component;
+import model.ComponentLibrary; //there is a java.awt.Component so we must be explicit
+import model.PCBuild;
 import service.BuildScoringService;
+import service.RecommendationService;
 
 public class GUIManager {
 
@@ -77,6 +81,7 @@ public class GUIManager {
 
         //setup the create build panel
         createBuildPanel = new CreateBuildPanel(
+            
             //use lambda expressions to define the actions for each button
             () -> cardLayout.show(mainPanel, "HOME"),
 
@@ -84,6 +89,29 @@ public class GUIManager {
                 
                 //store the user's specifications
                 currentRequest = request;
+
+                //create the component library object
+                ComponentLibrary library = new ComponentLibrary();
+
+                //create recommendation sevice object
+                RecommendationService recommendationService = new RecommendationService();
+
+                //print statement of GPU recommendations
+                System.out.println("===== GPU RECOMMENDATIONS =====");
+
+
+                //for each to find GPU components
+                for(Component gpu : recommendationService.recommendGPUs(currentRequest, library)){
+
+                    System.out.println(gpu.getName() + " | Score: " + gpu.getPerformanceScore());
+                }
+
+                System.out.println("===== CPU RECOMMENDATIONS =====");
+
+                for (Component cpu : recommendationService.recommendCPUs(currentRequest, library)) {
+
+                    System.out.println(cpu.getName() + " | Score: " + cpu.getPerformanceScore());
+                }
 
                 // remove the previos selection panel, if one exists
                 if (componentSelectionPanel != null) {

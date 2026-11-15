@@ -132,6 +132,7 @@ public class ComponentSelectionPanel extends JPanel {
 
     // Creates a dropdown for one component category
     private void addComponentRow(JPanel panel, ComponentType type, String labelText) {
+        
         JLabel label = new JLabel(labelText);
         UIStyles.styleLabel(label);
 
@@ -143,7 +144,18 @@ public class ComponentSelectionPanel extends JPanel {
         // Retrieve components belonging to this category
         ArrayList<Component> availableComponents = library.getComponentsByType(type);
 
-        for (Component component : availableComponents) {
+        for (Component component : library.getComponentsByType(type)) {
+            
+            //apply year filtering to the CPUs and GPUs
+            if(type == ComponentType.CPU || type == ComponentType.GPU) {
+
+                //skip components released after the target year
+                if (component.getReleaseYear() > request.getTargetYear()) {
+                    continue;
+                }
+            }
+
+            //add eligible components
             dropdown.addItem(component);
         }
 
@@ -151,17 +163,9 @@ public class ComponentSelectionPanel extends JPanel {
         dropdown.setRenderer(new DefaultListCellRenderer() {
 
             @Override
-            public java.awt.Component getListCellRendererComponent(
-                JList<?> list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus
-            ) {
+            public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 
-                super.getListCellRendererComponent(
-                    list, value, index, isSelected, cellHasFocus
-                );
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
                 if (value == null) {
                     setText("Select a component...");
@@ -188,7 +192,8 @@ public class ComponentSelectionPanel extends JPanel {
 
             if (selected == null) {
                 build.removeComponent(type);
-            } else {
+            } 
+            else {
                 build.selectComponent(selected);
             }
 
@@ -201,7 +206,7 @@ public class ComponentSelectionPanel extends JPanel {
         panel.add(dropdown);
     }
 
-     // Updates the total and remaining budget
+    // Updates the total and remaining budget
     private void updateBudgetDisplay() {
 
         double total = build.calculateTotalPrice();
