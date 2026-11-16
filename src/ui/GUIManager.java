@@ -6,13 +6,17 @@ package ui;
  */
 //imports
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import javax.swing.*;
 import model.BuildRequest;
-import model.Component;
-import model.ComponentLibrary; //there is a java.awt.Component so we must be explicit
-import model.PCBuild;
+import model.ComponentLibrary;
+import model.PCBuild; //there is a java.awt.Component so we must be explicit
 import service.BuildScoringService;
 import service.RecommendationService;
+import service.RecommendationTier;
+import service.RecommendedPair;
+import service.RecommendedPairTierService;
 
 public class GUIManager {
 
@@ -96,23 +100,54 @@ public class GUIManager {
                 //create recommendation sevice object
                 RecommendationService recommendationService = new RecommendationService();
 
-                //print statement of GPU recommendations
-                System.out.println("===== GPU RECOMMENDATIONS =====");
+                //create the tier service
+                RecommendedPairTierService tierService = new RecommendedPairTierService();
 
+                //retrieve all eligible CPU/GPU pairs
+                ArrayList<RecommendedPair> eligiblePairs = recommendationService.findEligiblePairs(currentRequest, library);
 
-                //for each to find GPU components
-                for(Component gpu : recommendationService.recommendGPUs(currentRequest, library)){
+                //calculate the recommendation tiers
+                EnumMap<RecommendationTier, RecommendedPair> pairTiers = tierService.calculateTiers(eligiblePairs);
 
-                    System.out.println(gpu.getName() + " | Score: " + gpu.getPerformanceScore());
+                System.out.println("===== CPU / GPU PAIR RECOMMENDATIONS =====");
+
+                // =======================================
+                // TEST CPU/GPU RECOMMENDATION TIERS
+                // =======================================
+
+                System.out.println("===== RECOMMENDED PAIR TIERS =====");
+
+                // Check if there are any qualifying pairs
+                if (pairTiers.isEmpty()) {
+
+                    System.out.println("No CPU/GPU combinations meet the current requirements.");
+                } 
+                else {
+
+                    // Go through each recommendation tier
+                    for (RecommendationTier tier : RecommendationTier.values()) {
+
+                        // Retrieve the pair associated with this tier
+                        RecommendedPair pair = pairTiers.get(tier);
+
+                        // Skip tiers that don't have a recommendation
+                        if (pair == null) {
+                            continue;
+                        }
+
+                        System.out.println("-------------------------");
+
+                        System.out.println("Tier: " + tier.getDisplayName());
+
+                        System.out.println("CPU: " + pair.getCpu().getName());
+
+                        System.out.println("GPU: " + pair.getGpu().getName());
+
+                        System.out.printf("Combined Price: $%.2f%n", pair.getCombinedPrice());
+
+                        System.out.printf("Gaming Score: %.1f%n", pair.getGamingScore());
+                    }
                 }
-
-                System.out.println("===== CPU RECOMMENDATIONS =====");
-
-                for (Component cpu : recommendationService.recommendCPUs(currentRequest, library)) {
-
-                    System.out.println(cpu.getName() + " | Score: " + cpu.getPerformanceScore());
-                }
-
                 // remove the previos selection panel, if one exists
                 if (componentSelectionPanel != null) {
                     mainPanel.remove(componentSelectionPanel);
@@ -121,7 +156,7 @@ public class GUIManager {
                 //create the component selection panel, and add it to the main panel.
                 componentSelectionPanel = new ComponentSelectionPanel(
                     currentRequest,
-                    new ComponentLibrary(),
+                    library,
 
                     // Back button returns to Create Build
                     () -> cardLayout.show(mainPanel, "CREATE"),
@@ -183,7 +218,19 @@ public class GUIManager {
                 BuildRequest request = card.getBuildRequest();
                 PCBuild build = card.getPCBuild();
 
-                buildDetailsPanel.showBuild(request, build);
+                // Check whether the card contains a completed build
+                if (request != null && build != null) {
+
+                    buildDetailsPanel.showBuild(request, build);
+                } 
+                else {
+
+                    // Display placeholder information for sample builds
+                    buildDetailsPanel.showBuild(
+                        card.getBuildName(),
+                        card.getCreator()
+                    );
+                }
 
                 cardLayout.show(mainPanel, "BUILD_DETAILS");
             }

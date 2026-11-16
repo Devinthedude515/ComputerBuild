@@ -5,6 +5,7 @@ import model.BuildRequest;
 import model.Component;
 import model.ComponentLibrary;
 import model.ComponentType;
+import model.PCBuild;
 
 public class RecommendationService {
 
@@ -132,5 +133,239 @@ public class RecommendationService {
 
         return yearsAfter2017 * 2.5;
     }
+
+    // Return GPU recommendations organized by tier
+    public EnumMap<RecommendationTier, Component> recommendGPUTiers(BuildRequest request, ComponentLibrary library) {
+
+        return calculateTiers(request, library, ComponentType.GPU, getMinimumGpuScore(request));
+    }
+
+    // Return CPU recommendations organized by tier
+    public EnumMap<RecommendationTier, Component> recommendCPUTiers(BuildRequest request, ComponentLibrary library) {
+
+        return calculateTiers(request, library, ComponentType.CPU, getMinimumCpuScore(request));
+    }
+
+    // Find eligible components and assign recommendation tiers
+    private EnumMap<RecommendationTier, Component> calculateTiers(BuildRequest request, ComponentLibrary library, ComponentType type, double minimumScore) {
+
+        //create Map to store results
+        EnumMap<RecommendationTier, Component> results = new EnumMap<>(RecommendationTier.class);
+
+        //create a list to determine eligibility
+        ArrayList<Component> eligible = new ArrayList<>();
+
+        //Filter components
+        for (Component component : library.getComponentsByType(type)) {
+
+            //Reject hardware released after the target year
+            if (component.getReleaseYear() > request.getTargetYear()) {
+                continue;
+            }
+
+            //Preliminary budget restriction
+            if (component.getPrice() > request.getBudget()) {
+                continue;
+            }
+
+            //Reject hardware below the minimum performance score
+            if (component.getPerformanceScore() < minimumScore) {
+                continue;
+            }
+
+            //add eligible components to the list
+            eligible.add(component);
+        }
+
+        //No qualifying components
+        if (eligible.isEmpty()) {
+            return results;
+        }
+
+        //Identify cheapest and strongest options
+        Component cheapest = null;
+        Component strongest = null;
+
+        //compare components with eligible components
+        for (Component component : eligible) {
+
+            //find cheapest of eligible components
+            if (cheapest == null || component.getPrice() < cheapest.getPrice() ||
+                (component.getPrice() == cheapest.getPrice() &&
+                component.getPerformanceScore() >
+                cheapest.getPerformanceScore())) {
+
+                cheapest = component;
+            }
+
+            //find strongest of eligible components
+            if (strongest == null || component.getPerformanceScore() >
+                strongest.getPerformanceScore() ||
+                (component.getPerformanceScore() ==
+                strongest.getPerformanceScore() &&
+                component.getPrice() < strongest.getPrice())) {
+
+                strongest = component;
+            }
+        }
+
+        //set the recommendation for cheapest
+        results.put(RecommendationTier.LOWEST_COST, cheapest);
+
+        if (strongest != cheapest) {
+
+            results.put(RecommendationTier.HIGHEST_PERFORMANCE,strongest);
+        }
+
+        //Find a balanced option
+        //Aim for modest performance headroom above the minimum
+        double balancedTarget = minimumScore + 8.0;
+
+        Component balanced = null;
+
+        //search through eligible components
+        for (Component component : eligible) {
+
+            // Avoid recommending the same component twice
+            if (component == cheapest || component == strongest) {
+                continue;
+            }
+
+            double distance = Math.abs(component.getPerformanceScore() - balancedTarget);
+
+            if (balanced == null) {
+                balanced = component;
+                continue;
+            }
+
+            double bestDistance = Math.abs(balanced.getPerformanceScore() - balancedTarget);
+
+            if (distance < bestDistance || (distance == bestDistance && component.getPrice() < balanced.getPrice())) {
+
+                balanced = component;
+            }
+        }
+
+        if (balanced != null) {
+            results.put(RecommendationTier.BALANCED, balanced);
+        }
+
+        return results;
+    }
+
+    private double getGenreGpuAdjustment(BuildRequest request) {
+
+        String genre = request.getGamingGenre().name();
+
+        // RPGs receive a provisional GPU-demand adjustment
+        if (genre.contains("RPG")) {
+            return 6.0;
+        }
+
+        // No additional GPU demand assumed for shooters
+        if (genre.contains("SHOOTER") || genre.equals("FPS")) {
+            return 0.0;
+        }
+
+        return 0.0;
+    }
+
+    private double getGenreCpuAdjustment(BuildRequest request) {
+
+        String genre = request.getGamingGenre().name();
+
+        // Provisional adjustment for shooter workloads
+        if (genre.contains("SHOOTER") || genre.equals("FPS")) {
+            return 3.0;
+        }
+
+        if (genre.contains("RPG")) {
+            return 2.0;
+        }
+
+        return 0.0;
+    }
+
+    public ArrayList<RecommendedPair> findEligiblePairs(BuildRequest request, ComponentLibrary library) {
+
+        //create a list to hold the pairs
+        ArrayList<RecommendedPair> pairs = new ArrayList<>();
+
+        //calculate the minimum performance requirements
+        double minimumCpuScore = getMinimumCpuScore(request);
+        double minimumGpuScore = getMinimumGpuScore(request);
+
+        //reserve 40% of the total budget for other components
+        double maxPairBudget = request.getBudget() * 0.60;
+
+        BuildScoringService scoringService = new BuildScoringService();
+
+        //retrieve available CPUs and GPUs
+        ArrayList<Component> cpus = library.getComponentsByType(ComponentType.CPU);
+
+        ArrayList<Component> gpus = library.getComponentsByType(ComponentType.GPU);
+
+        //check every CPU against every GPU
+        for (Component cpu : cpus) {
+
+            //exclude CPUs released after the target year
+            if (cpu.getReleaseYear() > request.getTargetYear()) {
+                continue;
+            }
+
+            //exclude CPUs below our performance threshold
+            if (cpu.getPerformanceScore() < minimumCpuScore) {
+                continue;
+            }
+
+            for (Component gpu : gpus) {
+
+                //exclude GPUs released after the target year
+                if (gpu.getReleaseYear() > request.getTargetYear()) {
+                    continue;
+                }
+
+                //exclude GPUs below the required score
+                if (gpu.getPerformanceScore() < minimumGpuScore) {
+                    continue;
+                }
+
+                //check the combined CPU/GPU price
+                double combinedPrice = cpu.getPrice() + gpu.getPrice();
+
+                if (combinedPrice > maxPairBudget) {
+                    continue;
+                }
+
+                //create a temporary build for scoring
+                PCBuild testBuild = new PCBuild();
+
+                testBuild.selectComponent(cpu);
+                testBuild.selectComponent(gpu);
+
+                //calculate the existing gaming score
+                double score = scoringService.calculateGamingScore(testBuild);
+
+                //save the eligible pair
+                pairs.add(new RecommendedPair(cpu, gpu, score));
+            }
+        }
+
+        //sort combinations from lowest to highest cost
+        pairs.sort(Comparator.comparingDouble(RecommendedPair::getCombinedPrice)
+                  .thenComparing(Comparator.comparingDouble(RecommendedPair::getGamingScore).reversed()));
+
+        //return up to five candidate combinations
+        return pairs;
+    }
+
+    public ArrayList<RecommendedPair> recommendPairs(BuildRequest request, ComponentLibrary library) {
+
+        //create list to hold eligible pairs
+        ArrayList<RecommendedPair> pairs = findEligiblePairs(request, library);
+
+        return new ArrayList<>(pairs.subList(0, Math.min(5, pairs.size())));
+    }
+
 }
 
