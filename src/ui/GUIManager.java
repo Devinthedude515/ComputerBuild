@@ -12,6 +12,7 @@ import javax.swing.*;
 import model.BuildRequest;
 import model.ComponentLibrary;
 import model.PCBuild; //there is a java.awt.Component so we must be explicit
+import service.BuildBudgetService;
 import service.BuildScoringService;
 import service.RecommendationService;
 import service.RecommendationTier;
@@ -96,6 +97,20 @@ public class GUIManager {
 
                 //create the component library object
                 ComponentLibrary library = new ComponentLibrary();
+
+                //testing the BuildBudgetService
+                BuildBudgetService budgetService = new BuildBudgetService();
+
+                double reserve = budgetService.estimateOtherPartsCost(library);
+
+                System.out.printf("Total Budget: $%.2f%n",
+                    currentRequest.getBudget());
+
+                System.out.printf("Estimated Other Parts: $%.2f%n",
+                    reserve);
+
+                System.out.printf("Available for CPU/GPU: $%.2f%n",
+                    currentRequest.getBudget() - reserve);
 
                 //create recommendation sevice object
                 RecommendationService recommendationService = new RecommendationService();

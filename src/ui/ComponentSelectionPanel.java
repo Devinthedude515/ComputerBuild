@@ -141,20 +141,28 @@ public class ComponentSelectionPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         //budget information
-        JPanel budgetPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+        JPanel budgetPanel = new JPanel(new GridLayout(4, 1, 5, 5));
         budgetPanel.setBackground(new java.awt.Color(15, 23, 42));
 
         totalCostLabel = new JLabel();
         remainingBudgetLabel = new JLabel();
         budgetStatusLabel = new JLabel();
 
+        // Inform users about legacy component pricing
+        JLabel legacyPriceNotice = new JLabel(
+            "<html>Note: Legacy hardware prices are estimates based on " +
+            "secondhand market values and may vary by seller and condition.</html>"
+        );
+
         UIStyles.styleLabel(totalCostLabel);
         UIStyles.styleLabel(remainingBudgetLabel);
         UIStyles.styleLabel(budgetStatusLabel);
+        UIStyles.styleLabel(legacyPriceNotice);
 
         budgetPanel.add(totalCostLabel);
         budgetPanel.add(remainingBudgetLabel);
         budgetPanel.add(budgetStatusLabel);
+        budgetPanel.add(legacyPriceNotice);
 
         // Buttons
         JButton backButton = new JButton("Back");

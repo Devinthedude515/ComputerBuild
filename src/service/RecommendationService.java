@@ -295,8 +295,14 @@ public class RecommendationService {
         double minimumCpuScore = getMinimumCpuScore(request);
         double minimumGpuScore = getMinimumGpuScore(request);
 
-        //reserve 40% of the total budget for other components
-        double maxPairBudget = request.getBudget() * 0.60;
+        //create the budget service
+        BuildBudgetService budgetService = new BuildBudgetService();
+
+        //estimate minimum cost of all other components
+        double otherPartsCost = budgetService.estimateOtherPartsCost(library);
+
+        //calculate how much can be spent on the CPU and GPU
+        double maxPairBudget = request.getBudget() - otherPartsCost;
 
         BuildScoringService scoringService = new BuildScoringService();
 
