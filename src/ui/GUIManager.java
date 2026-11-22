@@ -163,6 +163,7 @@ public class GUIManager {
                         System.out.printf("Gaming Score: %.1f%n", pair.getGamingScore());
                     }
                 }
+                
                 // remove the previos selection panel, if one exists
                 if (componentSelectionPanel != null) {
                     mainPanel.remove(componentSelectionPanel);

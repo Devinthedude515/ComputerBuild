@@ -10,10 +10,10 @@ import model.Component;
 import model.ComponentLibrary;
 import model.ComponentType;
 import model.PCBuild;
-import service.RecommendationService;
+import service.BuildValidationService;
+import service.PSURecommendationService;
 import service.RecommendationTier;
 import service.RecommendedPair;
-import service.RecommendedPairTierService;
 
 
 public class ComponentSelectionPanel extends JPanel {
@@ -30,12 +30,17 @@ public class ComponentSelectionPanel extends JPanel {
     private JLabel totalCostLabel;
     private JLabel remainingBudgetLabel;
     private JLabel budgetStatusLabel;
+    private JLabel psuRecommendationLabel;
 
     //create a Consumer of PCBuild to handle submission
     private Consumer<PCBuild> onSubmit;
 
     //create number format for currency
     private NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
+
+    //create vaariable for PSU recommendations
+    private PSURecommendationService powerService = new PSURecommendationService();
+
 
     public ComponentSelectionPanel(BuildRequest request, ComponentLibrary library, Runnable onBack, Consumer<PCBuild> onSubmit) {
         this.request = request;
@@ -74,46 +79,7 @@ public class ComponentSelectionPanel extends JPanel {
         // RECOMMENDED COMPONENTS
         // ============================
 
-        //create the recommendation service
-        RecommendationService recommendationService = new RecommendationService();
-
-        //get recommended CPUs and GPUs
-        EnumMap<RecommendationTier, Component> recommendedCPUs = recommendationService.recommendCPUTiers(request, library);
-
-        EnumMap<RecommendationTier, Component> recommendedGPUs = recommendationService.recommendGPUTiers(request, library);
-
-        //create the recommendations panel
-        JPanel recommendationsPanel = new JPanel(new GridLayout(1, 2, 15, 0));
-
-        recommendationsPanel.setOpaque(false);
-
-        //add recommended CPUs and GPUs
-        recommendationsPanel.add(createRecommendationSection("Recommended CPUs",recommendedCPUs));
-
-        recommendationsPanel.add(createRecommendationSection("Recommended GPUs", recommendedGPUs));
-
-        //create the tier service
-        RecommendedPairTierService tierService = new RecommendedPairTierService();
-
-        //retrieve every eligible CPU/GPU combination
-        ArrayList<RecommendedPair> eligiblePairs = recommendationService.findEligiblePairs(request, library);
-
-        //categorize the eligible pairs
-        EnumMap<RecommendationTier, RecommendedPair> pairTiers = tierService.calculateTiers(eligiblePairs);
-
-        //create the recommended pair panel
-        RecommendedPairPanel recommendedPairPanel = new RecommendedPairPanel(pairTiers, pair -> applyRecommendedPair(pair));
-
-        //create a panel to organize both recommendation sections
-        JPanel combinedRecommendationsPanel = new JPanel(new BorderLayout(0, 15));
-
-        combinedRecommendationsPanel.setOpaque(false);
-
-        //add recommended pairs to the top
-        combinedRecommendationsPanel.add(recommendedPairPanel, BorderLayout.NORTH);
-
-        //add individual CPU/GPU recommendations below
-        combinedRecommendationsPanel.add(recommendationsPanel, BorderLayout.CENTER);
+        ComponentRecommendationPanel combinedRecommendationsPanel = new ComponentRecommendationPanel(request, library, this::applyRecommendedPair);
 
         // ============================
         // ORGANIZE CENTER CONTENT
@@ -141,29 +107,34 @@ public class ComponentSelectionPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         //budget information
-        JPanel budgetPanel = new JPanel(new GridLayout(4, 1, 5, 5));
+        JPanel budgetPanel = new JPanel(new GridLayout(0, 1, 5, 5));
         budgetPanel.setBackground(new java.awt.Color(15, 23, 42));
 
         totalCostLabel = new JLabel();
         remainingBudgetLabel = new JLabel();
         budgetStatusLabel = new JLabel();
 
-        // Inform users about legacy component pricing
+        //inform users about legacy component pricing
         JLabel legacyPriceNotice = new JLabel(
             "<html>Note: Legacy hardware prices are estimates based on " +
             "secondhand market values and may vary by seller and condition.</html>"
         );
 
+        //notify user to select GPU and CPU before PSU
+        psuRecommendationLabel = new JLabel("PSU: Select a CPU and GPU first.");
+
         UIStyles.styleLabel(totalCostLabel);
         UIStyles.styleLabel(remainingBudgetLabel);
         UIStyles.styleLabel(budgetStatusLabel);
         UIStyles.styleLabel(legacyPriceNotice);
+        UIStyles.styleLabel(psuRecommendationLabel);
 
         budgetPanel.add(totalCostLabel);
         budgetPanel.add(remainingBudgetLabel);
         budgetPanel.add(budgetStatusLabel);
+        budgetPanel.add(psuRecommendationLabel);
         budgetPanel.add(legacyPriceNotice);
-
+        
         // Buttons
         JButton backButton = new JButton("Back");
         JButton submitButton = new JButton("Submit Build");
@@ -174,6 +145,56 @@ public class ComponentSelectionPanel extends JPanel {
         backButton.addActionListener(e -> onBack.run());
         submitButton.addActionListener(e -> { 
 
+            //create the validation service
+            BuildValidationService validationService = new BuildValidationService();
+
+            //validate the current build
+            ArrayList<String> errors = validationService.validateBuild(request, build);
+
+            // Block submission if errors exist
+            if (!errors.isEmpty()) {
+
+                String message = "Please fix the following issues:\n\n- " +
+                    String.join("\n- ", errors);
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    message,
+                    "Build Validation Failed",
+                    JOptionPane.ERROR_MESSAGE
+                );
+
+                return;
+            }
+
+            // Check whether the build exceeds the budget
+            double totalCost = build.calculateTotalPrice();
+            double budget = request.getBudget();
+
+            if (totalCost > budget) {
+
+                double overBudget = totalCost - budget;
+
+                String message = String.format(
+                    "Your build exceeds the budget by $%.2f.\n\n" +
+                    "Do you want to submit it anyway?",
+                    overBudget
+                );
+
+                int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    message,
+                    "Budget Warning",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+                );
+
+                // Cancel submission if user selects No
+                if (choice != JOptionPane.YES_OPTION) {
+                    return;
+                }
+            }
+            
             //use for each method to go through list of components
             for (Component component : build.getSelectedComponents()) {
                 System.out.println(component.getName());
@@ -217,20 +238,32 @@ public class ComponentSelectionPanel extends JPanel {
         //retrieve components belonging to this category
         ArrayList<Component> availableComponents = library.getComponentsByType(type);
 
-        for (Component component : availableComponents) {
-            
-            //apply year filtering to the CPUs and GPUs
-            if(type == ComponentType.CPU || type == ComponentType.GPU) {
+        //skip the power supply until the user selects a CPU and GPU
+        if (type != ComponentType.POWER_SUPPLY && type != ComponentType.MOTHERBOARD) {
 
-                //skip components released after the target year
-                if (component.getReleaseYear() > request.getTargetYear()) {
-                    continue;
+            //keep your existing year-filtered component loop here
+            for (Component component : availableComponents) {
+            
+                //apply year filtering to the CPUs and GPUs
+                if(type == ComponentType.CPU || type == ComponentType.GPU) {
+
+                    //skip components released after the target year
+                    if (component.getReleaseYear() > request.getTargetYear()) {
+                        continue;
+                    }
                 }
+
+                //add eligible components
+                dropdown.addItem(component);
             }
 
-            //add eligible components
-            dropdown.addItem(component);
+        } 
+        else {
+
+            //wait for the user to select a CPU and GPU
+            dropdown.setEnabled(false);
         }
+
 
         //display component names and prices
         dropdown.setRenderer(new DefaultListCellRenderer() {
@@ -269,6 +302,16 @@ public class ComponentSelectionPanel extends JPanel {
                 build.selectComponent(selected);
             }
 
+            //update motherboard options whenever CPU changes
+            if (type == ComponentType.CPU) {
+                updateMotherboardOptions();
+            }
+
+            //update the PSU options based on CPU and GPU selections
+            if (type == ComponentType.CPU || type == ComponentType.GPU) {
+                updatePowerSupplyOptions();
+            }
+
             updateBudgetDisplay();
         });
 
@@ -295,6 +338,114 @@ public class ComponentSelectionPanel extends JPanel {
         else {
             budgetStatusLabel.setText("You are within your budget.");
             budgetStatusLabel.setForeground(java.awt.Color.GREEN);
+        }
+    }
+
+    private void updatePowerSupplyOptions() {
+
+        //retrieve the PSU dropdown
+        JComboBox<Component> psuDropdown = componentDropdowns.get(ComponentType.POWER_SUPPLY);
+
+        if (psuDropdown == null) {
+            return;
+        }
+
+        //remember the previously selected PSU
+        Component previousPSU = (Component) psuDropdown.getSelectedItem();
+
+        //retrieve the selected CPU and GPU
+        Component cpu = build.getSelectedComponent(ComponentType.CPU);
+
+        Component gpu = build.getSelectedComponent(ComponentType.GPU);
+
+        //clear existing PSU options and selection
+        psuDropdown.removeAllItems();
+        psuDropdown.addItem(null);
+
+        build.removeComponent(ComponentType.POWER_SUPPLY);
+
+        //both components must be selected
+        if (cpu == null || gpu == null) {
+
+            psuDropdown.setEnabled(false);
+
+            psuRecommendationLabel.setText("PSU: Select a CPU and GPU first.");
+
+            return;
+        }
+
+        //calculate minimum PSU wattage
+        int minimumWatts = powerService.getMinimumSystemWatts(cpu, gpu);
+
+        System.out.println("===== PSU REQUIREMENT TEST =====");
+
+        System.out.println("CPU: " + cpu.getName());
+        System.out.println("GPU: " + gpu.getName());
+        System.out.println("Minimum Watts: " + minimumWatts);
+
+        if (minimumWatts < 0) {
+
+            psuDropdown.setEnabled(false);
+
+            psuRecommendationLabel.setText("PSU: Power requirement unavailable.");
+
+            return;
+        }
+
+        //display recommended wattage
+        psuRecommendationLabel.setText("Recommended PSU: " + minimumWatts + "W or higher");
+
+        //add only compatible PSU wattages
+        for (Component psu : library.getComponentsByType(ComponentType.POWER_SUPPLY)) {
+
+          /*
+            if (psu.getPsuCapacityWatts() >= minimumWatts) {
+                    psuDropdown.addItem(psu);
+            }
+          */  
+
+            int capacity = psu.getPsuCapacityWatts();
+
+            if (capacity >= minimumWatts) {
+
+                psuDropdown.addItem(psu);
+
+                System.out.println(
+                    "QUALIFIED: " + psu.getName() + " | " + capacity + "W"
+                );
+
+            } 
+            else {
+
+                System.out.println("EXCLUDED: " + psu.getName() + " | " + capacity + "W");
+            }
+
+            // Print the number of available PSUs
+            System.out.println("Qualifying PSU count: " + (psuDropdown.getItemCount() - 1));
+                        
+        }
+
+        //enable dropdown if at least one PSU qualifies
+        boolean hasOptions = psuDropdown.getItemCount() > 1;
+
+        psuDropdown.setEnabled(hasOptions);
+
+        //restore previous PSU if it remains eligible
+        if (previousPSU != null) {
+
+            for (int i = 0; i < psuDropdown.getItemCount(); i++) {
+
+                if (psuDropdown.getItemAt(i) == previousPSU) {
+
+                    psuDropdown.setSelectedItem(previousPSU);
+                    break;
+                }
+            }
+        }
+
+        if (!hasOptions) {
+
+            psuRecommendationLabel.setText("No available PSU meets the " + minimumWatts + "W requirement.");
         }
     }
 
@@ -374,5 +525,70 @@ public class ComponentSelectionPanel extends JPanel {
 
         //update budget display
         updateBudgetDisplay();
+    }
+
+    private void updateMotherboardOptions() {
+
+        //retrieve motherboard dropdown
+        JComboBox<Component> motherboardDropdown = componentDropdowns.get(ComponentType.MOTHERBOARD);
+
+        if (motherboardDropdown == null) {
+            return;
+        }
+
+        //remember previously selected motherboard
+        Component previousMotherboard = (Component) motherboardDropdown.getSelectedItem();
+
+        // Retrieve selected CPU
+        Component cpu = build.getSelectedComponent(ComponentType.CPU);
+
+        //clear old motherboard options
+        motherboardDropdown.removeAllItems();
+        motherboardDropdown.addItem(null);
+        motherboardDropdown.setEnabled(false);
+
+        //remove any previous motherboard from the build
+        build.removeComponent(ComponentType.MOTHERBOARD);
+
+        //stop if CPU is missing or unclassified
+        if (cpu == null || cpu.getCpuPlatform() == null) {
+            return;
+        }
+
+        //check each available motherboard
+        for (Component motherboard : library.getComponentsByType(ComponentType.MOTHERBOARD)) {
+
+            //skip unclassified or mismatched platforms
+            if (motherboard.getCpuPlatform() != cpu.getCpuPlatform()) {
+                continue;
+            }
+
+            //skip motherboards released after target year
+            if (motherboard.getReleaseYear() > request.getTargetYear()) {
+                continue;
+            }
+
+            //add matching motherboard
+            motherboardDropdown.addItem(motherboard);
+        }
+
+        //dnable when compatible motherboards exist
+        boolean hasOptions = motherboardDropdown.getItemCount() > 1;
+
+        motherboardDropdown.setEnabled(hasOptions);
+
+        //restore previous motherboard if still compatible
+        if (previousMotherboard != null) {
+
+            for (int i = 0; i < motherboardDropdown.getItemCount(); i++) {
+
+                if (motherboardDropdown.getItemAt(i) == previousMotherboard) {
+
+                    motherboardDropdown.setSelectedItem(previousMotherboard);
+
+                    break;
+                }
+            }
+        }
     }
 }

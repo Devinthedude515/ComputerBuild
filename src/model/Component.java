@@ -1,5 +1,4 @@
 package model;
-import model.ComponentType;
 
 public class Component {
 
@@ -9,7 +8,8 @@ public class Component {
     private String manufacturer;
     private double price;
     private double performanceScore;
-    private int releaseYear;
+    private int releaseYear, psuCapacityWatts;
+    private CPUPlatform cpuPlatform;
 
     //create constructor for the component class
     public Component(String name, ComponentType type, String manufacturer, double price, double performanceScore, int releaseYear) {
@@ -68,5 +68,40 @@ public class Component {
 
     public void setReleaseYear(int releaseYear) {
         this.releaseYear = releaseYear;
+    }
+
+    // Retrieve the PSU's rated wattage
+    public int getPsuCapacityWatts() {
+        return psuCapacityWatts;
+    }
+
+    // Store the rated capacity of a power supply
+    public void setPsuCapacityWatts(int watts) {
+
+        if (getType() != ComponentType.POWER_SUPPLY || watts <= 0) {
+            throw new IllegalArgumentException(
+                "PSU wattage must be positive and belong to a power supply."
+            );
+        }
+
+        this.psuCapacityWatts = watts;
+    }
+
+    // Retrieve the CPU/motherboard platform
+    public CPUPlatform getCpuPlatform() {
+        return cpuPlatform;
+    }
+
+    // Assign CPU/motherboard platform
+    public void setCpuPlatform(CPUPlatform platform) {
+
+        if (type != ComponentType.CPU && type != ComponentType.MOTHERBOARD) {
+
+            throw new IllegalArgumentException(
+                "Only CPUs and motherboards can have a CPU platform."
+            );
+        }
+
+        this.cpuPlatform = platform;
     }
 }
