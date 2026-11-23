@@ -2,7 +2,6 @@ package service;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import model.Component;
 
 public class PSURecommendationService {
@@ -25,12 +24,15 @@ public class PSURecommendationService {
         addGPU("GeForce GTX 1070 Ti 8GB", 180, 500);
         addGPU("GeForce GTX 1080 8GB", 180, 500);
         addGPU("GeForce GTX 1080 Ti 11GB", 250, 600);
+        addGPU("GeForce GTX 1660 Super 6GB", 125, 450);
+        addGPU("GeForce RTX 2060 6GB", 160, 500);
 
         addGPU("Radeon RX 560 2GB", 80, 450);
         addGPU("Radeon RX 570 4GB", 150, 450);
         addGPU("Radeon RX 580 8GB", 185, 500);
         addGPU("Radeon RX 480 8GB", 150, 500);
         addGPU("Radeon RX Vega 56 8GB", 210, 650);
+        addGPU("Radeon RX 5700 XT 8GB", 225, 600);
 
         //Historical AMD CPUs
         addCPU("AMD Ryzen 3 1200", 65);
@@ -38,6 +40,8 @@ public class PSURecommendationService {
         addCPU("AMD Ryzen 5 1600", 65);
         addCPU("AMD Ryzen 5 1600X", 95);
         addCPU("AMD Ryzen 7 1700", 65);
+        addCPU("AMD Ryzen 5 2600", 65);
+        addCPU("AMD Ryzen 5 3600", 65);
 
         //Historical Intel CPUs
         addCPU("Intel Core i3-7100", 51);
@@ -46,6 +50,8 @@ public class PSURecommendationService {
         addCPU("Intel Core i7-7700K", 91);
         addCPU("Intel Core i5-8400", 65);
         addCPU("Intel Core i7-8700K", 95);
+        addCPU("Intel Core i5-9400F", 65);
+        addCPU("Intel Core i5-10400F", 65);
     }
 
     //adds the GPU and its PSU specs to the constructor

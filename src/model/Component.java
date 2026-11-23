@@ -10,6 +10,7 @@ public class Component {
     private double performanceScore;
     private int releaseYear, psuCapacityWatts;
     private CPUPlatform cpuPlatform;
+    private MemoryType memoryType;
 
     //create constructor for the component class
     public Component(String name, ComponentType type, String manufacturer, double price, double performanceScore, int releaseYear) {
@@ -79,9 +80,7 @@ public class Component {
     public void setPsuCapacityWatts(int watts) {
 
         if (getType() != ComponentType.POWER_SUPPLY || watts <= 0) {
-            throw new IllegalArgumentException(
-                "PSU wattage must be positive and belong to a power supply."
-            );
+            throw new IllegalArgumentException("PSU wattage must be positive and belong to a power supply.");
         }
 
         this.psuCapacityWatts = watts;
@@ -97,11 +96,23 @@ public class Component {
 
         if (type != ComponentType.CPU && type != ComponentType.MOTHERBOARD) {
 
-            throw new IllegalArgumentException(
-                "Only CPUs and motherboards can have a CPU platform."
-            );
+            throw new IllegalArgumentException("Only CPUs and motherboards can have a CPU platform.");
         }
 
         this.cpuPlatform = platform;
+    }
+
+    public MemoryType getMemoryType() {
+        return memoryType;
+    }
+
+    public void setMemoryType(MemoryType memoryType) {
+
+        if (type != ComponentType.RAM && type != ComponentType.MOTHERBOARD) {
+
+            throw new IllegalArgumentException("Memory type only applies to RAM and motherboards.");
+        }
+
+        this.memoryType = memoryType;
     }
 }

@@ -43,6 +43,8 @@ public class GUIManager {
     private BrowseBuildPanel browseBuildPanel;
     private BuildDetailsPanel buildDetailsPanel;
     private ComponentSelectionPanel componentSelectionPanel;
+    private EditBuildPanel editBuildPanel;
+    private ComponentSelectionPanel editSelectionPanel;
     
     //create variables for the component library
     private BuildRequest currentRequest;
@@ -78,8 +80,14 @@ public class GUIManager {
             
             () -> cardLayout.show(mainPanel, "BROWSE"),
 
-            () -> JOptionPane.showMessageDialog(
-                frame, "Edit Build is not implemented yet."),
+            () -> {
+
+                //refresh the saved-build list
+                editBuildPanel.showBuilds(browseBuildPanel.getSavedBuildCards());
+
+                //open Edit Builds
+                cardLayout.show(mainPanel, "EDIT_LIST");
+            },
 
             () -> frame.dispose()
         );
@@ -224,8 +232,9 @@ public class GUIManager {
             }
         );
 
-        // Create the browse gallery
+        //create the browse gallery
         browseBuildPanel = new BrowseBuildPanel(
+
             //use lambda expressions to define the actions for each button
             () -> cardLayout.show(mainPanel, "HOME"),
 
@@ -251,13 +260,25 @@ public class GUIManager {
                 cardLayout.show(mainPanel, "BUILD_DETAILS");
             }
         );
+
+        //create the Edit Builds list
+        editBuildPanel = new EditBuildPanel(
+
+            //back button returns home
+            () -> cardLayout.show(mainPanel, "HOME"),
+
+            //selecting a build opens its editor
+            card -> openBuildEditor(card)
+        );
         
-        // Create the build details screen
+        //create the build details screen
         buildDetailsPanel = new BuildDetailsPanel(
+            
             () -> cardLayout.show(mainPanel, "BROWSE")
         );
 
         submittedPanel = new SubmittedPanel(
+            
             //use lambda expressions to define the actions for each button
             () -> cardLayout.show(mainPanel, "HOME")
         );
@@ -268,6 +289,7 @@ public class GUIManager {
         mainPanel.add(submittedPanel, "SUBMITTED");
         mainPanel.add(browseBuildPanel, "BROWSE");
         mainPanel.add(buildDetailsPanel, "BUILD_DETAILS");
+        mainPanel.add(editBuildPanel, "EDIT_LIST");
 
         //set the frame size, title, and default close operation.
         frame.setSize(width, height);
@@ -276,10 +298,78 @@ public class GUIManager {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        //Open home screen first
+        //open home screen first
         cardLayout.show(mainPanel, "HOME");
 
         //center the window on the screen
         frame.setVisible(true);
+    }
+
+    //allows the edit build button to choose a card to edit
+    private void openBuildEditor(BuildCard originalCard) {
+
+        //retrieve the saved build information
+        BuildRequest savedRequest =
+            originalCard.getBuildRequest();
+
+        PCBuild savedBuild =
+            originalCard.getPCBuild();
+
+        //ignore cards without actual build data
+        if (savedRequest == null || savedBuild == null) {
+            return;
+        }
+
+        //create the component library
+        ComponentLibrary library = new ComponentLibrary();
+
+        //remove the previous editor if it exists
+        if (editSelectionPanel != null) {
+            mainPanel.remove(editSelectionPanel);
+        }
+
+        //create the editing version of ComponentSelectionPanel
+        editSelectionPanel = new ComponentSelectionPanel(
+
+            savedRequest,
+            library,
+            savedBuild,
+
+            //cancel edits and return to the list
+            () -> {
+                editBuildPanel.showBuilds(
+                    browseBuildPanel.getSavedBuildCards()
+                );
+
+                cardLayout.show(mainPanel, "EDIT_LIST");
+            },
+
+            //save the edited build
+            editedBuild -> {
+
+                boolean updated = browseBuildPanel.replaceBuild(originalCard, savedRequest, editedBuild);
+
+                if (!updated) {
+
+                    JOptionPane.showMessageDialog(frame, "Unable to update the selected build.");
+
+                    return;
+                }
+
+                //refresh the Edit Builds list
+                editBuildPanel.showBuilds(browseBuildPanel.getSavedBuildCards());
+
+                //return to Edit Builds
+                cardLayout.show(mainPanel, "EDIT_LIST");
+            }
+        );
+
+        // Register and display the editor
+        mainPanel.add(editSelectionPanel, "EDIT_COMPONENTS");
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
+
+        cardLayout.show(mainPanel, "EDIT_COMPONENTS");
     }
 }

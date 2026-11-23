@@ -1,7 +1,6 @@
 package service;
 
 import java.util.ArrayList;
-
 import model.BuildRequest;
 import model.Component;
 import model.ComponentType;
@@ -36,6 +35,8 @@ public class BuildValidationService {
 
         Component psu = build.getSelectedComponent(ComponentType.POWER_SUPPLY);
 
+        Component ram = build.getSelectedComponent(ComponentType.RAM);
+
 
         //check CPU and motherboard compatibility
         if (cpu != null && motherboard != null) {
@@ -63,6 +64,15 @@ public class BuildValidationService {
             } else if (psu != null && psu.getPsuCapacityWatts() < minimumWatts) {
 
                 errors.add("Power supply is insufficient. " + "At least " + minimumWatts + "W is recommended.");
+            }
+        }
+
+        //check if RAM is compatible
+        if (ram != null && motherboard != null) {
+
+            if (ram.getMemoryType() == null || motherboard.getMemoryType() == null || ram.getMemoryType() != motherboard.getMemoryType()) {
+
+                errors.add("The selected RAM is not compatible " + "with the motherboard.");
             }
         }
 

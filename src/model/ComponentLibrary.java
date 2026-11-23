@@ -31,23 +31,8 @@ public class ComponentLibrary {
         // ============================
         // RAM
         // ============================
-        components.add(new Component(
-            "DDR5 32GB Kit",
-            ComponentType.RAM,
-            "SampleTech",
-            99.99,
-            80.0,
-            2025
-        ));
-
-        components.add(new Component(
-            "DDR5 64GB Kit",
-            ComponentType.RAM,
-            "SampleTech",
-            179.99,
-            90.0,
-            2025
-        ));
+        
+        RAMCatalog.loadInto(components);
 
         // ============================
         // Storage

@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import javax.swing.*;
 import model.BuildRequest;
@@ -88,6 +89,57 @@ public class BrowseBuildPanel extends JPanel {
 
         buildGrid.revalidate();
         buildGrid.repaint();
+    }
+
+    //grabs all of the builds in the browser
+    public ArrayList<BuildCard> getSavedBuildCards() {
+
+        ArrayList<BuildCard> savedBuilds = new ArrayList<>();
+
+        //examine each card in the Browse Builds gallery
+        for (java.awt.Component item : buildGrid.getComponents()) {
+
+            if (item instanceof BuildCard) {
+
+                BuildCard card = (BuildCard) item;
+
+                //ignore sample cards without real build data
+                if (card.getBuildRequest() != null && card.getPCBuild() != null) {
+
+                    savedBuilds.add(card);
+                }
+            }
+        }
+
+        return savedBuilds;
+    }
+
+    //replaces a build after creating edits
+    public boolean replaceBuild(BuildCard originalCard, BuildRequest request, PCBuild updatedBuild) {
+
+        //find the original card in the gallery
+        int index = buildGrid.getComponentZOrder(originalCard);
+
+        if (index < 0) {
+            return false;
+        }
+
+        // Create a replacement card using the edited build
+        BuildCard updatedCard = new BuildCard(
+            request,
+            updatedBuild,
+            onBuildSelected
+        );
+
+        // Replace the original card at the same position
+        buildGrid.remove(index);
+        buildGrid.add(updatedCard, index);
+
+        // Refresh the gallery
+        buildGrid.revalidate();
+        buildGrid.repaint();
+
+        return true;
     }
 
 }
