@@ -5,22 +5,26 @@ import java.text.NumberFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import model.*;
 import model.Component;
-import service.BuildScoringService;
-import service.ConsoleReference;
+import service.ConsoleComparisonService;
 
 
 public class BuildDetailsPanel extends JPanel {
     
     //create private Variables to reflect user input
     private JLabel nameLabel, buildNameLabel, budgetLabel, targetYearLabel, 
-                   gamingGenreLabel, screenResolutionLabel, frameRateLabel,
-                   pcScoreLabel, ps5ScoreLabel, xboxScoreLabel;
+                   gamingGenreLabel, screenResolutionLabel, frameRateLabel;
 
     //set final color scheme's for the section and background
     private final Color backGroundColor = new Color(15, 23, 42);
     private final Color sectionColor = new Color(30, 41, 60);
+
+    private JTextPane consoleComparisonText;
 
     //create EnumMap for componentLabels and totalPriceLabel with remainingBudgetLabel
     private EnumMap<ComponentType, JLabel> componentLabels;
@@ -32,9 +36,6 @@ public class BuildDetailsPanel extends JPanel {
 
     //create NumberFormat for currency
     private NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
-
-    //create a BuildScoreService object
-    private BuildScoringService scoringService = new BuildScoringService();
 
     //create constructor
     public BuildDetailsPanel(Runnable onBack) {
@@ -158,18 +159,39 @@ public class BuildDetailsPanel extends JPanel {
         // SECTION 4: PERFORMANCE COMPARISON
         // ============================
 
-        JPanel scoringPanel = createSection(
-            "Gaming Performance Comparison"
-        );
+        //create the performance comparison section
+        JPanel scoringPanel = createSection("Gaming Performance Comparison");
 
-        pcScoreLabel = createLabel();
-        ps5ScoreLabel = createLabel();
-        xboxScoreLabel = createLabel();
+        //create a text pane to display styled comparisons
+        consoleComparisonText = new JTextPane();
 
-        addRow(scoringPanel, "Your PC:", pcScoreLabel, 1);
-        addRow(scoringPanel, "PlayStation 5:", ps5ScoreLabel, 2);
-        addRow(scoringPanel, "Xbox Series X:", xboxScoreLabel, 3);
+        consoleComparisonText.setEditable(false);
+        consoleComparisonText.setFocusable(false);
 
+        //match the existing dark theme
+        consoleComparisonText.setBackground(sectionColor);
+        consoleComparisonText.setForeground(Color.WHITE);
+
+        //set the default font
+        consoleComparisonText.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        //give the text space around the edges
+        consoleComparisonText.setBorder(new EmptyBorder(15, 10, 15, 10));
+
+        //position the text within scoringPanel
+        GridBagConstraints comparisonGbc = new GridBagConstraints();
+
+        comparisonGbc.gridx = 0;
+        comparisonGbc.gridy = 1;
+        comparisonGbc.gridwidth = 2;
+        comparisonGbc.weightx = 1.0;
+        comparisonGbc.fill = GridBagConstraints.HORIZONTAL;
+        comparisonGbc.anchor = GridBagConstraints.WEST;
+
+        //add the text pane to the scoring panel
+        scoringPanel.add(consoleComparisonText, comparisonGbc);
+
+        //add scoring panel to the content panel
         addSection(scoringPanel, 3);
 
         //keep sections aligned at the top of the panel
@@ -233,7 +255,7 @@ public class BuildDetailsPanel extends JPanel {
 
     }
 
-    // Create a styled section containing a title
+    //create a styled section containing a title
     private JPanel createSection(String heading) {
 
         JPanel section = new JPanel(new GridBagLayout());
@@ -284,10 +306,10 @@ public class BuildDetailsPanel extends JPanel {
     // ============================
 
     //overloaded method to show the Build once opened
-    // Display a submitted build
+    //display a submitted build
     public void showBuild(BuildRequest request, PCBuild build) {
 
-        // Display original specifications
+        //display original specifications
         buildNameLabel.setText(request.getNameOfBuild() == null || request.getNameOfBuild().trim().isEmpty()
                 ? "Unnamed Build"
                 : request.getNameOfBuild()
@@ -304,7 +326,11 @@ public class BuildDetailsPanel extends JPanel {
 
         frameRateLabel.setText(String.valueOf(request.getFrameRate()).replace("FPS_", "") + " FPS");
 
-        // Display the selected hardware
+        ConsoleComparisonService comparisonService = new ConsoleComparisonService();
+
+        styleConsoleComparison(comparisonService.getComparisonText(build));
+
+        //display the selected hardware
         for (ComponentType type : ComponentType.values()) {
 
             Component component = build.getSelectedComponent(type);
@@ -327,7 +353,7 @@ public class BuildDetailsPanel extends JPanel {
         totalPriceLabel.setText(currency.format(total));
         remainingBudgetLabel.setText(currency.format(remaining));
 
-         // Change budget color based on the result
+         //change budget color based on the result
         if (remaining < 0) {
             //set to red if the remaining budget is negative
             remainingBudgetLabel.setForeground(new Color(248, 113, 113));
@@ -336,48 +362,23 @@ public class BuildDetailsPanel extends JPanel {
             remainingBudgetLabel.setForeground(new Color(74, 222, 128));
         }
 
-        // Calculate the custom PC score
-        if (scoringService.canScore(build)) {
-
-            double pcScore = scoringService.calculateGamingScore(build);
-
-            pcScoreLabel.setText(String.format(Locale.US, "%.1f / 100", pcScore));
-
-        } 
-        else {
-
-            pcScoreLabel.setText("CPU or GPU not selected");
-        }
-
-        // Calculate fixed console reference scores
-        double ps5Score = scoringService.calculateConsoleScore(ConsoleReference.PS5);
-
-        double xboxScore = scoringService.calculateConsoleScore(ConsoleReference.XBOX_SERIES_X);
-
-        ps5ScoreLabel.setText(String.format(Locale.US, "%.1f / 100 (demo)", ps5Score));
-
-        xboxScoreLabel.setText(String.format(Locale.US, "%.1f / 100 (demo)", xboxScore));
-
         //set vertical scroll bar to the top of the panel
         scrollPane.getVerticalScrollBar().setValue(0);
     }
 
-    
-
     //method to show the Build once opened
     public void showBuild(String buildName, String creator) {
+
         buildNameLabel.setText(buildName);
         nameLabel.setText(creator);
 
-        //Temporarily set the other labels to "Not available" until a build is selected
+        //temporarily set the other labels to "Not available" until a build is selected
         budgetLabel.setText("Not available");
         targetYearLabel.setText("Not available");
         gamingGenreLabel.setText("Not available");
         screenResolutionLabel.setText("Not available");
         frameRateLabel.setText("Not available");
-        pcScoreLabel.setText("Not available");
-        ps5ScoreLabel.setText("Not available");
-        xboxScoreLabel.setText("Not available");
+        consoleComparisonText.setText("Console comparison unavailable for sample builds.");
 
         for (JLabel label : componentLabels.values()) {
             label.setText("Not available");
@@ -387,4 +388,119 @@ public class BuildDetailsPanel extends JPanel {
         remainingBudgetLabel.setText("Not available");
     }
 
+    private SimpleAttributeSet createComparisonStyle(int fontSize, boolean bold, Color color) {
+
+        SimpleAttributeSet style = new SimpleAttributeSet();
+
+        StyleConstants.setFontFamily(style, "SansSerif");
+        StyleConstants.setFontSize(style, fontSize);
+        StyleConstants.setBold(style, bold);
+        StyleConstants.setForeground(style, color);
+
+        return style;
+    }
+
+    private void styleConsoleComparison(String comparisonText) {
+
+        StyledDocument document = consoleComparisonText.getStyledDocument();
+
+        //define text styles
+        SimpleAttributeSet titleStyle = createComparisonStyle(18, true, new Color(125, 211, 252));
+
+        SimpleAttributeSet headingStyle = createComparisonStyle(16, true, Color.WHITE);
+
+        SimpleAttributeSet normalStyle = createComparisonStyle(14, false, new Color(203, 213, 225));
+
+        SimpleAttributeSet priceStyle = createComparisonStyle(14, true, new Color(250, 204, 21));
+
+        SimpleAttributeSet positiveStyle = createComparisonStyle(14, true, new Color(74, 222, 128));
+
+        SimpleAttributeSet negativeStyle = createComparisonStyle(14, true, new Color(248, 113, 113));
+
+        SimpleAttributeSet neutralStyle = createComparisonStyle(14, true, new Color(250, 204, 21));
+
+        SimpleAttributeSet noteStyle = createComparisonStyle(12, false, new Color(148, 163, 184));
+
+        boolean customPCSection = true;
+
+        try {
+            //clear the previous comparison
+            document.remove(0, document.getLength());
+
+            //read the comparison one line at a time
+            String[] lines = comparisonText.split("\\R");
+
+            for (String line : lines) {
+
+                SimpleAttributeSet selectedStyle = normalStyle;
+
+                //main section headings
+                if (line.equals("CUSTOM PC")) {
+                    selectedStyle = titleStyle;
+                }
+                else if (line.equals("CONSOLE COMPARISONS")) {
+                    selectedStyle = headingStyle;
+                    customPCSection = false;
+                }
+
+                //style the price separately from the score
+                else if (line.startsWith("Score:")) {
+
+                    int pricePosition = line.indexOf(" | Price: ");
+
+                    if (pricePosition >= 0) {
+
+                        String score = line.substring(0, pricePosition);
+                        String price = line.substring(pricePosition + 3);
+
+                        document.insertString(document.getLength(), score, customPCSection ? titleStyle : normalStyle);
+
+                        document.insertString(document.getLength(), "  |  ", normalStyle);
+
+                        document.insertString(document.getLength(), price + "\n", priceStyle);
+
+                        continue;
+                    }
+                }
+
+                //PC has a higher numerical score
+                else if (line.startsWith("PC score +")) {
+                    selectedStyle = positiveStyle;
+                }
+
+                //PC has a lower numerical score
+                else if (line.startsWith("PC score -")) {
+                    selectedStyle = negativeStyle;
+                }
+
+                //dqual scores
+                else if (line.equals("Same reference score")) {
+                    selectedStyle = neutralStyle;
+                }
+
+                //disclaimer
+                else if (line.startsWith("Scores are estimates")) {
+                    selectedStyle = noteStyle;
+                }
+
+                //console names
+                else if (!line.trim().isEmpty()) {
+                    selectedStyle = headingStyle;
+                }
+
+                //insert the styled line
+                document.insertString(
+                    document.getLength(),
+                    line + "\n",
+                    selectedStyle
+                );
+            }
+        } 
+        catch (BadLocationException ex) {
+            throw new IllegalStateException("Unable to display console comparison.", ex);
+        }
+
+        //show the beginning of the comparison
+        consoleComparisonText.setCaretPosition(0);
+    }
 }

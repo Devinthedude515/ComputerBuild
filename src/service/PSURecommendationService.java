@@ -26,6 +26,10 @@ public class PSURecommendationService {
         addGPU("GeForce GTX 1080 Ti 11GB", 250, 600);
         addGPU("GeForce GTX 1660 Super 6GB", 125, 450);
         addGPU("GeForce RTX 2060 6GB", 160, 500);
+        addGPU("GeForce RTX 3060 12GB", 170, 600);
+        addGPU("GeForce RTX 4060 8GB", 115, 550);
+        addGPU("GeForce RTX 4070 12GB", 200, 650);
+        addGPU("GeForce RTX 5060 8GB", 145, 550);
 
         addGPU("Radeon RX 560 2GB", 80, 450);
         addGPU("Radeon RX 570 4GB", 150, 450);
@@ -33,6 +37,10 @@ public class PSURecommendationService {
         addGPU("Radeon RX 480 8GB", 150, 500);
         addGPU("Radeon RX Vega 56 8GB", 210, 650);
         addGPU("Radeon RX 5700 XT 8GB", 225, 600);
+        addGPU("Radeon RX 6600 8GB", 132, 450);
+        addGPU("Radeon RX 6700 XT 12GB", 230, 650);
+        addGPU("Radeon RX 7600 8GB", 165, 550);
+        
 
         //Historical AMD CPUs
         addCPU("AMD Ryzen 3 1200", 65);
@@ -42,6 +50,9 @@ public class PSURecommendationService {
         addCPU("AMD Ryzen 7 1700", 65);
         addCPU("AMD Ryzen 5 2600", 65);
         addCPU("AMD Ryzen 5 3600", 65);
+        addCPU("AMD Ryzen 5 5600", 65);
+        addCPU("AMD Ryzen 5 7600", 65);
+        addCPU("AMD Ryzen 5 9600X", 65);
 
         //Historical Intel CPUs
         addCPU("Intel Core i3-7100", 51);
@@ -52,6 +63,9 @@ public class PSURecommendationService {
         addCPU("Intel Core i7-8700K", 95);
         addCPU("Intel Core i5-9400F", 65);
         addCPU("Intel Core i5-10400F", 65);
+        addCPU("Intel Core i5-12400F", 65);
+        addCPU("Intel Core i5-13400F", 65);
+        addCPU("Intel Core i5-14400F", 65);
     }
 
     //adds the GPU and its PSU specs to the constructor
