@@ -29,33 +29,6 @@ public class ComponentLibrary {
         GPUCatalog.loadInto(components);
 
         // ============================
-        // RAM
-        // ============================
-        
-        RAMCatalog.loadInto(components);
-
-        // ============================
-        // Storage
-        // ============================
-        components.add(new Component(
-            "NVMe 1TB SSD",
-            ComponentType.STORAGE,
-            "SampleTech",
-            69.99,
-            75.0,
-            2025
-        ));
-
-        components.add(new Component(
-            "NVMe 2TB SSD",
-            ComponentType.STORAGE,
-            "SampleTech",
-            119.99,
-            85.0,
-            2025
-        ));
-
-        // ============================
         // Motherboard
         // ============================
        
@@ -68,46 +41,9 @@ public class ComponentLibrary {
         PSUCatalog.loadInto(components);
 
         // ============================
-        // Cases
+        // Generic RAM, CPU Cooler, Storage, and Cases
         // ============================
-        components.add(new Component(
-            "Mid-Tower Case",
-            ComponentType.CASE,
-            "SampleTech",
-            79.99,
-            80.0,
-            2025
-        ));
-
-        components.add(new Component(
-            "Airflow Mid-Tower Case",
-            ComponentType.CASE,
-            "SampleTech",
-            109.99,
-            90.0,
-            2025
-        ));
-
-        // ============================
-        // CPU Cooler
-        // ============================
-        components.add(new Component(
-            "Air CPU Cooler",
-            ComponentType.CPU_COOLER,
-            "SampleTech",
-            39.99,
-            75.0,
-            2025
-        ));
-
-        components.add(new Component(
-            "240mm Liquid Cooler",
-            ComponentType.CPU_COOLER,
-            "SampleTech",
-            89.99,
-            90.0,
-            2025
-        ));
+        loadGenericComponents();
     }
 
     // Retrieve all components
@@ -157,6 +93,71 @@ public class ComponentLibrary {
     // Return total number of components
     public int getComponentCount() {
         return components.size();
+    }
+
+    private void loadGenericComponents() {
+
+        // ============================
+        // GENERIC RAM
+        // ============================
+
+        addGenericRAM("16GB DDR4 3200MHz Kit", 135.00, MemoryType.DDR4);
+
+        addGenericRAM("32GB DDR4 3200MHz Kit", 210.00, MemoryType.DDR4);
+
+        addGenericRAM("16GB DDR5 Kit", 260.00, MemoryType.DDR5);
+
+        addGenericRAM("32GB DDR5 Kit", 430.00, MemoryType.DDR5);
+
+        addGenericRAM("64GB DDR5 Kit", 950.00, MemoryType.DDR5);
+
+        // ============================
+        // GENERIC STORAGE
+        // ============================
+
+        addGenericComponent("1TB SSD", ComponentType.STORAGE, 150.00);
+
+        addGenericComponent("2TB SSD", ComponentType.STORAGE, 230.00);
+
+        addGenericComponent("2TB HDD", ComponentType.STORAGE, 85.00);
+
+        // ============================
+        // GENERIC CASES
+        // ============================
+
+        addGenericComponent("Small Tower Case", ComponentType.CASE, 65.00);
+
+        addGenericComponent("Mid Tower Case", ComponentType.CASE, 90.00);
+
+        addGenericComponent("Full Tower Case", ComponentType.CASE, 140.00);
+
+        // ============================
+        // GENERIC CPU COOLERS
+        // ============================
+
+        addGenericComponent("Standard Air Cooler", ComponentType.CPU_COOLER, 35.00);
+
+        addGenericComponent("Performance Air Cooler", ComponentType.CPU_COOLER, 65.00);
+
+        addGenericComponent("240mm Liquid Cooler", ComponentType.CPU_COOLER, 120.00);
+    }
+
+    // Helper for generic supporting components
+    private void addGenericComponent(String name, ComponentType type, double price) {
+
+        Component component = new Component(name, type, "Generic", price, 0.0, 0);
+
+        components.add(component);
+    }
+
+    // RAM needs its memory type for motherboard compatibility
+    private void addGenericRAM(String name, double price, MemoryType memoryType) {
+
+        Component ram = new Component(name, ComponentType.RAM, "Generic", price, 0.0, 0);
+
+        ram.setMemoryType(memoryType);
+
+        components.add(ram);
     }
     
 }

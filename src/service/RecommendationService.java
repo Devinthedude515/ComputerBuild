@@ -67,7 +67,20 @@ public class RecommendationService {
 
         if (resolution.contains("2160") || resolution.contains("4K") || resolution.contains("UHD")) {
 
-            score = 95.0;
+            double minimumScore;
+
+            if (fps >= 120) {
+                minimumScore = 99.0;
+            }
+            else if (fps >= 90) {
+                minimumScore = 97.0;
+            }
+            else {
+                minimumScore = 94.0;
+            }
+
+            // Include the existing genre adjustment
+            return Math.min(100.0, minimumScore + getGenreGpuAdjustment(request));
         } 
         else if (resolution.contains("1440") ||resolution.contains("QHD")) {
 
@@ -83,13 +96,14 @@ public class RecommendationService {
         }
 
         if (fps >= 120) {
-            score += 23.0;
+            score += 14.0;
         } 
         else if (fps >= 90) {
-            score += 12.0;
+            score += 7.0;
         }
 
         // Prototype allowance for newer gaming years
+        score += getGenreGpuAdjustment(request);
         score += getYearAdjustment(request);
 
         return score;
@@ -103,11 +117,12 @@ public class RecommendationService {
         double score = 60.0;
 
         if (fps >= 120) {
-            score += 18.0;
+            score += 12.0;
         } else if (fps >= 90) {
-            score += 10.0;
+            score += 7.0;
         }
 
+        score += getGenreCpuAdjustment(request);
         score += getYearAdjustment(request) * 0.8;
 
         return score;
@@ -131,7 +146,7 @@ public class RecommendationService {
 
         int yearsAfter2017 = Math.max(0, request.getTargetYear() - 2017);
 
-        return yearsAfter2017 * 2.5;
+        return yearsAfter2017 * 1.0;
     }
 
     // Return GPU recommendations organized by tier
@@ -155,26 +170,32 @@ public class RecommendationService {
         //create a list to determine eligibility
         ArrayList<Component> eligible = new ArrayList<>();
 
-        //Filter components
+        //filter components
         for (Component component : library.getComponentsByType(type)) {
 
-            //Reject hardware released after the target year
+            //reject hardware released after the target year
             if (component.getReleaseYear() > request.getTargetYear()) {
                 continue;
             }
 
-            //Preliminary budget restriction
+            //preliminary budget restriction
             if (component.getPrice() > request.getBudget()) {
                 continue;
             }
 
-            //Reject hardware below the minimum performance score
+            //reject hardware below the minimum performance score
             if (component.getPerformanceScore() < minimumScore) {
                 continue;
             }
 
             //add eligible components to the list
             eligible.add(component);
+        }
+
+        //prioritize GPUs released near the target gaming year
+        if (type == ComponentType.GPU) {
+
+            eligible = preferRecentGPUs(eligible, request.getTargetYear());
         }
 
         //No qualifying components
@@ -298,12 +319,6 @@ public class RecommendationService {
         //create the budget service
         BuildBudgetService budgetService = new BuildBudgetService();
 
-        //estimate minimum cost of all other components
-        double otherPartsCost = budgetService.estimateOtherPartsCost(library);
-
-        //calculate how much can be spent on the CPU and GPU
-        double maxPairBudget = request.getBudget() - otherPartsCost;
-
         BuildScoringService scoringService = new BuildScoringService();
 
         //retrieve available CPUs and GPUs
@@ -336,10 +351,45 @@ public class RecommendationService {
                     continue;
                 }
 
-                //check the combined CPU/GPU price
+                System.out.println("=== PAIR DEBUG ===");
+
+                System.out.println(
+                    "Target Year: " + request.getTargetYear()
+                );
+
+                System.out.println(
+                    "Budget: $" + request.getBudget()
+                );
+
+                System.out.println(
+                    "Minimum CPU Score: " + minimumCpuScore
+                );
+
+                System.out.println(
+                    "Minimum GPU Score: " + minimumGpuScore
+                );
+
+                //cost of the CPU/GPU pair
                 double combinedPrice = cpu.getPrice() + gpu.getPrice();
 
-                if (combinedPrice > maxPairBudget) {
+                //estimate supporting components compatible with this pair
+                double otherPartsCost = budgetService.estimateOtherPartsCost(library, cpu, gpu, request.getTargetYear());
+
+                //skip combinations without compatible supporting parts
+                if (!Double.isFinite(otherPartsCost)) {
+
+                    System.out.println("No compatible supporting parts: " + cpu.getName() + " + " + gpu.getName());
+                    continue;
+                }
+
+                //calculate the estimated minimum complete build cost
+                double estimatedBuildCost = combinedPrice + otherPartsCost;
+
+                //reject combinations that exceed the user's budget
+                if (estimatedBuildCost > request.getBudget()) {
+
+                    System.out.println("Over budget: " + cpu.getName() + " + " + gpu.getName() + " | Estimated total: $" + estimatedBuildCost);
+
                     continue;
                 }
 
@@ -357,10 +407,15 @@ public class RecommendationService {
             }
         }
 
+        //prioritize combinations containing recent GPUs
+        pairs = preferRecentPairs(pairs, request.getTargetYear());
+
         //sort combinations from lowest to highest cost
         pairs.sort(Comparator.comparingDouble(RecommendedPair::getCombinedPrice)
                   .thenComparing(Comparator.comparingDouble(RecommendedPair::getGamingScore).reversed()));
 
+        
+        System.out.println("Total eligible CPU/GPU pairs: " + pairs.size());
         //return up to five candidate combinations
         return pairs;
     }
@@ -371,6 +426,59 @@ public class RecommendationService {
         ArrayList<RecommendedPair> pairs = findEligiblePairs(request, library);
 
         return new ArrayList<>(pairs.subList(0, Math.min(5, pairs.size())));
+    }
+
+    private ArrayList<Component> preferRecentGPUs(ArrayList<Component> eligibleGPUs, int targetYear) {
+
+        //prefer hardware released within two years of the target gaming year
+        int maximumAge = 2;
+
+        int minimumYear = targetYear - maximumAge;
+
+        ArrayList<Component> recentGPUs = new ArrayList<>();
+
+        for (Component gpu : eligibleGPUs) {
+
+            int releaseYear = gpu.getReleaseYear();
+
+            if (releaseYear >= minimumYear &&
+                releaseYear <= targetYear) {
+
+                recentGPUs.add(gpu);
+            }
+        }
+
+        //if there are no suitable recent GPUs allow older eligible hardware as a fallback
+        if (recentGPUs.isEmpty()) {
+            return eligibleGPUs;
+        }
+
+        return recentGPUs;
+    }
+
+    private ArrayList<RecommendedPair> preferRecentPairs(ArrayList<RecommendedPair> eligiblePairs, int targetYear) {
+
+        int minimumYear = targetYear - 2;
+
+        ArrayList<RecommendedPair> recentPairs =
+            new ArrayList<>();
+
+        for (RecommendedPair pair : eligiblePairs) {
+
+            Component gpu = pair.getGpu();
+
+            if (gpu.getReleaseYear() >= minimumYear && gpu.getReleaseYear() <= targetYear) {
+
+                recentPairs.add(pair);
+            }
+        }
+
+        //preserve older affordable pairs if no recent CPU/GPU combinations qualify
+        if (recentPairs.isEmpty()) {
+            return eligiblePairs;
+        }
+
+        return recentPairs;
     }
 
 }

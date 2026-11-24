@@ -53,6 +53,9 @@ public class GPUCatalog {
         addGPU(components, "GeForce RTX 3060 12GB",
             "NVIDIA", 344.00, 85.0, 2021);
 
+        addGPU(components, "GeForce RTX 3080 10GB",
+            "NVIDIA", 450.00, 99.0, 2020);
+
 
         // =====================================
         // NVIDIA RTX 40 Series - 2023
@@ -63,6 +66,9 @@ public class GPUCatalog {
 
         addGPU(components, "GeForce RTX 4070 12GB",
             "NVIDIA", 635.00, 98.0, 2023);
+
+        addGPU(components, "GeForce RTX 4080 16GB",
+            "NVIDIA", 1180.00, 100.0, 2022);
 
 
         // =====================================
@@ -121,6 +127,9 @@ public class GPUCatalog {
         addGPU(components, "Radeon RX 6700 XT 12GB",
             "AMD", 352.00, 92.0, 2021);
 
+        addGPU(components, "Radeon RX 6800 XT 16GB",
+            "AMD", 476.00, 99.0, 2020);
+
 
         // =====================================
         // AMD Radeon RX 7000 Series - 2023
@@ -128,6 +137,14 @@ public class GPUCatalog {
 
         addGPU(components, "Radeon RX 7600 8GB",
             "AMD", 277.00, 86.0, 2023);
+
+
+        // =====================================
+        // AMD Radeon RX 9000 Series - 2025
+        // =====================================
+
+        addGPU(components, "Radeon RX 9070 XT 16GB",
+            "AMD", 886.00, 100.0, 2025);
     }
 
     private static void addGPU(List<Component> components, String name, String manufacturer, double price, double score, int year) {

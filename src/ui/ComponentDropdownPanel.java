@@ -314,59 +314,32 @@ public class ComponentDropdownPanel extends JPanel{
     //method loads an already created build for editting
     public void loadExistingBuild(PCBuild existingBuild) {
 
-        //check for a valid saved build
         if (existingBuild == null) {
             return;
         }
 
-        //CPU and GPU must load first so their
-        //motherboard and PSU filters can update
-        ComponentType[] loadingOrder = {
-            ComponentType.CPU,
-            ComponentType.GPU,
-            ComponentType.MOTHERBOARD,
-            ComponentType.RAM,
-            ComponentType.POWER_SUPPLY,
-            ComponentType.STORAGE,
-            ComponentType.CASE,
-            ComponentType.CPU_COOLER
-        };
+        //CPU and GPU must be loaded first
+        selectSavedComponent(existingBuild, ComponentType.CPU);
 
-        //go through each saved component
-        for (ComponentType type : loadingOrder) {
+        selectSavedComponent(existingBuild, ComponentType.GPU);
 
-            Component savedComponent = existingBuild.getSelectedComponent(type);
+        //CPU selection determines available motherboards
+        selectSavedComponent(existingBuild, ComponentType.MOTHERBOARD);
 
-            JComboBox<Component> dropdown = componentDropdowns.get(type);
+        //motherboard determines available RAM
+        selectSavedComponent(existingBuild, ComponentType.RAM);
 
-            //skip unavailable selections
-            if (savedComponent == null || dropdown == null) {
-                continue;
-            }
+        //CPU and GPU determine PSU requirements
+        selectSavedComponent(existingBuild, ComponentType.POWER_SUPPLY);
 
-            boolean found = false;
+        //remaining generic components
+        selectSavedComponent(existingBuild, ComponentType.STORAGE);
 
-            //find the saved component in the dropdown
-            for (int i = 0; i < dropdown.getItemCount(); i++) {
+        selectSavedComponent(existingBuild, ComponentType.CASE);
 
-                Component option = dropdown.getItemAt(i);
+        selectSavedComponent(existingBuild, ComponentType.CPU_COOLER);
 
-                if (option != null && option.getName().equals(savedComponent.getName())) {
-
-                    //selecting the item automatically triggers our existing listeners
-                    dropdown.setSelectedIndex(i);
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                System.out.println("Could not restore component: " + savedComponent.getName());
-            }
-        }
-
-        //refresh budget after loading all components
+        //refresh the displayed budget
         summaryPanel.refreshBudget();
     }
 
@@ -394,7 +367,7 @@ public class ComponentDropdownPanel extends JPanel{
             return;
         }
 
-        // Add compatible RAM only
+        //add compatible RAM only
         for (Component ram : library.getComponentsByType(ComponentType.RAM)) {
 
             if (ram.getMemoryType() == motherboard.getMemoryType()) {
@@ -405,7 +378,7 @@ public class ComponentDropdownPanel extends JPanel{
 
         ramDropdown.setEnabled(ramDropdown.getItemCount() > 1);
 
-        // Restore previous RAM if still compatible
+        //restore previous RAM if still compatible
         if (previousRAM != null) {
 
             for (int i = 0; i < ramDropdown.getItemCount(); i++) {
@@ -416,5 +389,34 @@ public class ComponentDropdownPanel extends JPanel{
                 }
             }
         }
+    }
+
+    private void selectSavedComponent(PCBuild savedBuild, ComponentType type) {
+
+        //get the previously selected component
+        Component savedComponent = savedBuild.getSelectedComponent(type);
+
+        //get the dropdown associated with its type
+        JComboBox<Component> dropdown = componentDropdowns.get(type);
+
+        if (savedComponent == null || dropdown == null) {
+            return;
+        }
+
+        //search the dropdown for the matching component
+        for (int i = 0; i < dropdown.getItemCount(); i++) {
+
+            Component option = dropdown.getItemAt(i);
+
+            if (option != null && option.getName().equals(savedComponent.getName())) {
+
+                //select the actual catalog component
+                dropdown.setSelectedIndex(i);
+
+                return;
+            }
+        }
+
+        System.out.println("Saved component not found in catalog: " + savedComponent.getName());
     }
 }

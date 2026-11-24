@@ -22,6 +22,12 @@ public class Component {
         this.releaseYear = releaseYear;
     }
 
+    public Component(String name, ComponentType type, String manufacturer, double price, double performanceScore) {
+
+        //0 means the release year is not applicable
+        this(name, type, manufacturer, price, performanceScore, 0);
+    }
+
     //create getters and setters for the component class
     public String getName() {
         return name;

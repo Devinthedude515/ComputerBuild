@@ -12,8 +12,7 @@ public class PSUCatalog {
             ComponentType.POWER_SUPPLY,
             "Sample",
             45.00,
-            0.0,
-            2025
+            0.0
         );
 
         psu450.setPsuCapacityWatts(450);
@@ -25,8 +24,7 @@ public class PSUCatalog {
             ComponentType.POWER_SUPPLY,
             "Sample",
             60.00,
-            0.0,
-            2025
+            0.0
         );
 
         psu550.setPsuCapacityWatts(550);
@@ -38,8 +36,7 @@ public class PSUCatalog {
             ComponentType.POWER_SUPPLY,
             "Sample",
             75.00,
-            0.0,
-            2025
+            0.0
         );
 
         psu650.setPsuCapacityWatts(650);
@@ -51,8 +48,7 @@ public class PSUCatalog {
             ComponentType.POWER_SUPPLY,
             "Sample",
             90.00,
-            0.0,
-            2025
+            0.0
         );
 
         psu750.setPsuCapacityWatts(750);
@@ -64,8 +60,7 @@ public class PSUCatalog {
             ComponentType.POWER_SUPPLY,
             "Sample",
             110.00,
-            0.0,
-            2025
+            0.0
         );
 
         psu850.setPsuCapacityWatts(850);

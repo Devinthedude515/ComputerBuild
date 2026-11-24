@@ -6,13 +6,17 @@ package ui;
  */
 //imports
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import javax.swing.*;
 import model.BuildRequest;
 import model.ComponentLibrary;
 import model.PCBuild; //there is a java.awt.Component so we must be explicit
-import service.BuildBudgetService;
+import model.SavedBuild;
+import service.BuildFileService;
 import service.BuildScoringService;
 import service.RecommendationService;
 import service.RecommendationTier;
@@ -49,6 +53,9 @@ public class GUIManager {
     //create variables for the component library
     private BuildRequest currentRequest;
     private PCBuild completedBuild;
+
+    //allows the saving of builds locally
+    private final BuildFileService buildFileService = new BuildFileService();
 
 
     //create constructor
@@ -106,20 +113,6 @@ public class GUIManager {
                 //create the component library object
                 ComponentLibrary library = new ComponentLibrary();
 
-                //testing the BuildBudgetService
-                BuildBudgetService budgetService = new BuildBudgetService();
-
-                double reserve = budgetService.estimateOtherPartsCost(library);
-
-                System.out.printf("Total Budget: $%.2f%n",
-                    currentRequest.getBudget());
-
-                System.out.printf("Estimated Other Parts: $%.2f%n",
-                    reserve);
-
-                System.out.printf("Available for CPU/GPU: $%.2f%n",
-                    currentRequest.getBudget() - reserve);
-
                 //create recommendation sevice object
                 RecommendationService recommendationService = new RecommendationService();
 
@@ -131,46 +124,6 @@ public class GUIManager {
 
                 //calculate the recommendation tiers
                 EnumMap<RecommendationTier, RecommendedPair> pairTiers = tierService.calculateTiers(eligiblePairs);
-
-                System.out.println("===== CPU / GPU PAIR RECOMMENDATIONS =====");
-
-                // =======================================
-                // TEST CPU/GPU RECOMMENDATION TIERS
-                // =======================================
-
-                System.out.println("===== RECOMMENDED PAIR TIERS =====");
-
-                // Check if there are any qualifying pairs
-                if (pairTiers.isEmpty()) {
-
-                    System.out.println("No CPU/GPU combinations meet the current requirements.");
-                } 
-                else {
-
-                    // Go through each recommendation tier
-                    for (RecommendationTier tier : RecommendationTier.values()) {
-
-                        // Retrieve the pair associated with this tier
-                        RecommendedPair pair = pairTiers.get(tier);
-
-                        // Skip tiers that don't have a recommendation
-                        if (pair == null) {
-                            continue;
-                        }
-
-                        System.out.println("-------------------------");
-
-                        System.out.println("Tier: " + tier.getDisplayName());
-
-                        System.out.println("CPU: " + pair.getCpu().getName());
-
-                        System.out.println("GPU: " + pair.getGpu().getName());
-
-                        System.out.printf("Combined Price: $%.2f%n", pair.getCombinedPrice());
-
-                        System.out.printf("Gaming Score: %.1f%n", pair.getGamingScore());
-                    }
-                }
                 
                 // remove the previos selection panel, if one exists
                 if (componentSelectionPanel != null) {
@@ -196,6 +149,8 @@ public class GUIManager {
 
                         // Add the completed build to the Browse Builds gallery
                         browseBuildPanel.addBuild(currentRequest, completedBuild);
+                        //saves created builds locally
+                        saveAllBuilds();
                         cardLayout.show(mainPanel, "SUBMITTED");
 
                         // Create the scoring service
@@ -301,6 +256,9 @@ public class GUIManager {
         //open home screen first
         cardLayout.show(mainPanel, "HOME");
 
+        //restore saved builds
+        loadAllBuilds();
+
         //center the window on the screen
         frame.setVisible(true);
     }
@@ -309,11 +267,9 @@ public class GUIManager {
     private void openBuildEditor(BuildCard originalCard) {
 
         //retrieve the saved build information
-        BuildRequest savedRequest =
-            originalCard.getBuildRequest();
+        BuildRequest savedRequest = originalCard.getBuildRequest();
 
-        PCBuild savedBuild =
-            originalCard.getPCBuild();
+        PCBuild savedBuild = originalCard.getPCBuild();
 
         //ignore cards without actual build data
         if (savedRequest == null || savedBuild == null) {
@@ -337,9 +293,7 @@ public class GUIManager {
 
             //cancel edits and return to the list
             () -> {
-                editBuildPanel.showBuilds(
-                    browseBuildPanel.getSavedBuildCards()
-                );
+                editBuildPanel.showBuilds(browseBuildPanel.getSavedBuildCards());
 
                 cardLayout.show(mainPanel, "EDIT_LIST");
             },
@@ -356,6 +310,9 @@ public class GUIManager {
                     return;
                 }
 
+                //save the updated builds to the Desktop file
+                saveAllBuilds();
+
                 //refresh the Edit Builds list
                 editBuildPanel.showBuilds(browseBuildPanel.getSavedBuildCards());
 
@@ -364,12 +321,60 @@ public class GUIManager {
             }
         );
 
-        // Register and display the editor
+        //register and display the editor
         mainPanel.add(editSelectionPanel, "EDIT_COMPONENTS");
 
         mainPanel.revalidate();
         mainPanel.repaint();
 
         cardLayout.show(mainPanel, "EDIT_COMPONENTS");
+    }
+
+    //saves buiilds locally
+    private void saveAllBuilds() {
+
+        List<SavedBuild> saved = new ArrayList<>();
+
+        //collect user-created builds, excluding sample cards
+        for (BuildCard card : browseBuildPanel.getSavedBuildCards()) {
+
+            if (card.getBuildRequest() != null && card.getPCBuild() != null) {
+
+                saved.add(new SavedBuild(card.getBuildRequest(), card.getPCBuild()));
+            }
+        }
+
+        try {
+            Path location = buildFileService.saveBuilds(saved);
+
+            System.out.println("Builds saved to: " + location);
+
+        } 
+        catch (IOException ex) {
+
+            JOptionPane.showMessageDialog(frame, ex.getMessage(), "Could Not Save Builds", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadAllBuilds() {
+
+        try {
+            List<SavedBuild> saved = buildFileService.loadBuilds();
+
+            //addBuild() inserts at the beginning, so load in reverse to preserve display order
+            for (int i = saved.size() - 1; i >= 0; i--) {
+
+                SavedBuild item = saved.get(i);
+
+                browseBuildPanel.addBuild(item.getRequest(), item.getBuild());
+            }
+
+            System.out.println("Loaded " + saved.size() + " saved builds.");
+
+        } 
+        catch (IOException ex) {
+
+            JOptionPane.showMessageDialog(frame, ex.getMessage(), "Could Not Load Builds", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

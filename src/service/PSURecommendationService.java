@@ -27,8 +27,10 @@ public class PSURecommendationService {
         addGPU("GeForce GTX 1660 Super 6GB", 125, 450);
         addGPU("GeForce RTX 2060 6GB", 160, 500);
         addGPU("GeForce RTX 3060 12GB", 170, 600);
+        addGPU("GeForce RTX 3080 10GB", 320, 750);
         addGPU("GeForce RTX 4060 8GB", 115, 550);
         addGPU("GeForce RTX 4070 12GB", 200, 650);
+        addGPU("GeForce RTX 4080 16GB", 320, 750);
         addGPU("GeForce RTX 5060 8GB", 145, 550);
 
         addGPU("Radeon RX 560 2GB", 80, 450);
@@ -39,7 +41,9 @@ public class PSURecommendationService {
         addGPU("Radeon RX 5700 XT 8GB", 225, 600);
         addGPU("Radeon RX 6600 8GB", 132, 450);
         addGPU("Radeon RX 6700 XT 12GB", 230, 650);
+        addGPU("Radeon RX 6800 XT 16GB", 300, 750);
         addGPU("Radeon RX 7600 8GB", 165, 550);
+        addGPU("Radeon RX 9070 XT 16GB", 304, 750);
         
 
         //Historical AMD CPUs
