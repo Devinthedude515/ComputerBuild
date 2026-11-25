@@ -278,12 +278,12 @@ public class RecommendationService {
 
         String genre = request.getGamingGenre().name();
 
-        // RPGs receive a provisional GPU-demand adjustment
+        //RPGs receive a provisional GPU-demand adjustment
         if (genre.contains("RPG")) {
-            return 6.0;
+            return 4.5;
         }
 
-        // No additional GPU demand assumed for shooters
+        //No additional GPU demand assumed for shooters
         if (genre.contains("SHOOTER") || genre.equals("FPS")) {
             return 0.0;
         }
@@ -351,23 +351,6 @@ public class RecommendationService {
                     continue;
                 }
 
-                System.out.println("=== PAIR DEBUG ===");
-
-                System.out.println(
-                    "Target Year: " + request.getTargetYear()
-                );
-
-                System.out.println(
-                    "Budget: $" + request.getBudget()
-                );
-
-                System.out.println(
-                    "Minimum CPU Score: " + minimumCpuScore
-                );
-
-                System.out.println(
-                    "Minimum GPU Score: " + minimumGpuScore
-                );
 
                 //cost of the CPU/GPU pair
                 double combinedPrice = cpu.getPrice() + gpu.getPrice();
@@ -412,10 +395,10 @@ public class RecommendationService {
 
         //sort combinations from lowest to highest cost
         pairs.sort(Comparator.comparingDouble(RecommendedPair::getCombinedPrice)
-                  .thenComparing(Comparator.comparingDouble(RecommendedPair::getGamingScore).reversed()));
+                  .thenComparing(Comparator.comparingDouble(RecommendedPair::getGamingScore).reversed())
+        );
 
         
-        System.out.println("Total eligible CPU/GPU pairs: " + pairs.size());
         //return up to five candidate combinations
         return pairs;
     }
@@ -441,8 +424,7 @@ public class RecommendationService {
 
             int releaseYear = gpu.getReleaseYear();
 
-            if (releaseYear >= minimumYear &&
-                releaseYear <= targetYear) {
+            if (releaseYear >= minimumYear && releaseYear <= targetYear) {
 
                 recentGPUs.add(gpu);
             }

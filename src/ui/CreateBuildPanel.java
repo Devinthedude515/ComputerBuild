@@ -21,9 +21,6 @@ public class CreateBuildPanel extends JPanel {
 
     //create constructor
     public CreateBuildPanel(Runnable onBack, Consumer<BuildRequest> onSubmit) {
-
-        //test
-        System.out.println("Updated CreateBuildPanel is running!");
         
         //initialize the labels and text fields
         //labels

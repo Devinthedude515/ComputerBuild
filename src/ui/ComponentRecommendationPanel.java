@@ -1,16 +1,5 @@
 package ui;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
-import model.BuildRequest;
-import model.Component;
-import model.ComponentLibrary;
-import service.RecommendationService;
-import service.RecommendationTier;
-import service.RecommendedPair;
-import service.RecommendedPairTierService;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -20,10 +9,18 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.function.Consumer;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import model.BuildRequest;
+import model.Component;
+import model.ComponentLibrary;
+import service.RecommendationService;
+import service.RecommendationTier;
+import service.RecommendedPair;
+import service.RecommendedPairTierService;
 public class ComponentRecommendationPanel extends JPanel {
     
-    private final NumberFormat currency =
-        NumberFormat.getCurrencyInstance(Locale.US);
+    private final NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
 
     public ComponentRecommendationPanel(BuildRequest request,ComponentLibrary library, Consumer<RecommendedPair> onPairSelected) {
 
@@ -107,13 +104,9 @@ public class ComponentRecommendationPanel extends JPanel {
                     "</html>"
                 );
 
-                componentLabel.setForeground(
-                    new Color(203, 213, 225)
-                );
+                componentLabel.setForeground(new Color(203, 213, 225));
 
-                componentLabel.setFont(
-                    new Font("SansSerif", Font.PLAIN, 14)
-                );
+                componentLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
                 panel.add(componentLabel);
             }

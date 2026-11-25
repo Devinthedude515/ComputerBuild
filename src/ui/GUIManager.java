@@ -9,7 +9,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import javax.swing.*;
 import model.BuildRequest;
@@ -17,11 +16,6 @@ import model.ComponentLibrary;
 import model.PCBuild; //there is a java.awt.Component so we must be explicit
 import model.SavedBuild;
 import service.BuildFileService;
-import service.BuildScoringService;
-import service.RecommendationService;
-import service.RecommendationTier;
-import service.RecommendedPair;
-import service.RecommendedPairTierService;
 
 public class GUIManager {
 
@@ -38,10 +32,6 @@ public class GUIManager {
     //create cardLayout to switch between different panels, and a flow layout to arrange components in a row
     private CardLayout cardLayout;
     private JPanel mainPanel, homePanel, createBuildPanel, submittedPanel;
-
-    //text area to display output, or for user input, or both. It can be used to display multiple lines of text, 
-    // and can be set to be editable or not.
-    private JTextArea ta;
 
     //create variables for the panels
     private BrowseBuildPanel browseBuildPanel;
@@ -112,20 +102,8 @@ public class GUIManager {
 
                 //create the component library object
                 ComponentLibrary library = new ComponentLibrary();
-
-                //create recommendation sevice object
-                RecommendationService recommendationService = new RecommendationService();
-
-                //create the tier service
-                RecommendedPairTierService tierService = new RecommendedPairTierService();
-
-                //retrieve all eligible CPU/GPU pairs
-                ArrayList<RecommendedPair> eligiblePairs = recommendationService.findEligiblePairs(currentRequest, library);
-
-                //calculate the recommendation tiers
-                EnumMap<RecommendationTier, RecommendedPair> pairTiers = tierService.calculateTiers(eligiblePairs);
                 
-                // remove the previos selection panel, if one exists
+                //remove the previos selection panel, if one exists
                 if (componentSelectionPanel != null) {
                     mainPanel.remove(componentSelectionPanel);
                 }
@@ -135,48 +113,21 @@ public class GUIManager {
                     currentRequest,
                     library,
 
-                    // Back button returns to Create Build
+                    //back button returns to Create Build
                     () -> cardLayout.show(mainPanel, "CREATE"),
 
-                    // Submit button returns to Submitted panel
+                    //submit button returns to Submitted panel
                     build -> {
 
                         completedBuild = build;
 
-                        // Check that GUIManager received the build
-                        System.out.println("GUIManager received PC Build!");
-                        System.out.println("Total Cost: $" + completedBuild.calculateTotalPrice());
-
-                        // Add the completed build to the Browse Builds gallery
+                        //add the completed build to the Browse Builds gallery
                         browseBuildPanel.addBuild(currentRequest, completedBuild);
+
                         //saves created builds locally
                         saveAllBuilds();
                         cardLayout.show(mainPanel, "SUBMITTED");
-
-                        // Create the scoring service
-                        BuildScoringService scoringService = new BuildScoringService();
-
-                        // Check whether the build can be scored
-                        if (scoringService.canScore(completedBuild)) {
-
-                            double gamingScore = scoringService.calculateGamingScore(completedBuild);
-
-                            System.out.printf("Gaming Performance Score: %.1f / 100%n", gamingScore);
-
-                        } 
-                        else {
-
-                            System.out.println("Gaming score unavailable: CPU or GPU not selected.");
-                        }
-
-                        // Check the user's budget
-                        boolean withinBudget = scoringService.isWithinBudget(completedBuild, currentRequest);
-                        
-                        //print the budget
-                        System.out.println("Within Budget: " + withinBudget);
                     }
-
-                    
                 );
                 
                 mainPanel.add(componentSelectionPanel, "COMPONENT_SELECTION");
@@ -198,18 +149,15 @@ public class GUIManager {
                 BuildRequest request = card.getBuildRequest();
                 PCBuild build = card.getPCBuild();
 
-                // Check whether the card contains a completed build
+                //check whether the card contains a completed build
                 if (request != null && build != null) {
 
                     buildDetailsPanel.showBuild(request, build);
                 } 
                 else {
 
-                    // Display placeholder information for sample builds
-                    buildDetailsPanel.showBuild(
-                        card.getBuildName(),
-                        card.getCreator()
-                    );
+                    //display placeholder information for sample builds
+                    buildDetailsPanel.showBuild(card.getBuildName(), card.getCreator());
                 }
 
                 cardLayout.show(mainPanel, "BUILD_DETAILS");
@@ -368,8 +316,6 @@ public class GUIManager {
 
                 browseBuildPanel.addBuild(item.getRequest(), item.getBuild());
             }
-
-            System.out.println("Loaded " + saved.size() + " saved builds.");
 
         } 
         catch (IOException ex) {

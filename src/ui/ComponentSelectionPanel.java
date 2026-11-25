@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import model.BuildRequest;
-import model.Component;
 import model.ComponentLibrary;
 import model.PCBuild;
 import service.BuildValidationService;
@@ -169,17 +168,9 @@ public class ComponentSelectionPanel extends JPanel {
                 return;
             }
         }
-        
-        //use for each method to go through list of components
-        for (Component component : build.getSelectedComponents()) {
-            System.out.println(component.getName());
-        }
-
-        System.out.println("Total: $" + build.calculateTotalPrice());
 
         //submit the build
         onSubmit.accept(build);
-        
     }
 
     public void setSubmitButtonText(String text) {

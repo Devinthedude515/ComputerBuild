@@ -357,7 +357,8 @@ public class BuildDetailsPanel extends JPanel {
         if (remaining < 0) {
             //set to red if the remaining budget is negative
             remainingBudgetLabel.setForeground(new Color(248, 113, 113));
-        } else {
+        } 
+        else {
             //set to green if the remaining budget is positive
             remainingBudgetLabel.setForeground(new Color(74, 222, 128));
         }
